@@ -1,20 +1,3 @@
-# if __name__ == '__main__':
-#     score = 0
-#     step_max = input("How many episodes so you want?")
-#     steps = 0
-#     run = True
-#     while run:
-#         if steps == step_max:
-#             run = False
-#         steps += 1
-#         pass
-    #Every step of the environment, goes to the agent, and calls the program function in the environment, and provides
-    # its current state in the environment.
-    # Environment has a run method. Takes a number of steps. In this run method, the environment is going to calla  step funciton
-    # in that function, the enviornment is going to go through every single agent in the environment. If hte agent that is in hte environment,
-    #  for htat agent, the environment is oging to call the proram method and is going to pass in its current state. Tells the agent
-    # where it is in the environment and then tells it if the environment it is currently on is clean or dirty.
-
 from random import randint
 
 class Agent:
@@ -43,9 +26,12 @@ class Agent:
         percepts : list
             a list of strings and/or Nones representing the perception of the environment from the perspective of
             the agent.
+        performance : int
+            an integer representing the number of times the agent has completed a task.
         '''
 
         self.percepts = percepts
+        self.performance = 0
 
     def set_percepts(self, agent_percepts):
         '''
@@ -68,14 +54,15 @@ class Agent:
         action : str
             a string representing the action the Agent wants to make in the environment.
         '''
-
+        if "cleaned" in self.percepts:
+            self.performance += 1
         if "clean" in self.percepts:
-            action = "clean_room"
+            action = "suck"
         else:
             if "left" in self.percepts:
-                action = "move_right"
+                action = "right"
             else:
-                action = "move_left"
+                action = "left"
         return action
 
 
@@ -95,6 +82,10 @@ class Vacuum_Environment:
         with a 1.
     agent_action : str
         the action the agent will do in the environment.
+    environment_won : bool
+        Keeps track of whether the environment it is currently in is already won.
+    score : int
+        Keeps track of the number of times the agent has completed the environments' tasks.
 
     Methods
     -------
@@ -131,11 +122,17 @@ class Vacuum_Environment:
             represented with a 1.
         agent_action : str
             the action the agent will do in the environment.
+        environment_won : bool
+            Keeps track of whether the environment it is currently in is already won.
+        score : int
+            Keeps track of the number of times the agent has completed the environments' tasks.
         '''
 
         self.world = []
         self.dirty_room = []
         self.agent_action = ""
+        self.environment_won = False
+        self.score = 0
 
     def create_world(self):
         '''
@@ -159,7 +156,7 @@ class Vacuum_Environment:
 
     def create_dirt(self):
         '''
-        Sets the 'dirty_room' class variable representing the one clean and one dirty room inside of the environment.
+        Sets the 'dirty_room' class variable representing clean rooms with 0 and dirty rooms with 1 inside of the environment.
         The 'dirty_room' class variable represents the location of the dirty room with a 1 and the clean room with a 0.
 
         Raises
@@ -169,11 +166,7 @@ class Vacuum_Environment:
         '''
 
         if self.dirty_room == []:
-            dirt = randint(0, 1)
-            if dirt:
-                self.dirty_room = [0, 1]
-            else:
-                self.dirty_room = [1, 0]
+            self.dirty_room = [randint(0, 1), randint(0, 1)]
         else:
             raise AttributeError("Can't create new dirt. Pre-existing dirt exists!")
 
@@ -188,11 +181,15 @@ class Vacuum_Environment:
         '''
 
         agent_percepts = []
+
+        if self.get_dirt_status() == [] and self.environment_won == False:
+            agent_percepts.append("cleaned")
+            self.environment_won = True
         if self.world == [1, 0]:
             agent_percepts.append("left")
         else:
             agent_percepts.append(None) # Appending None to emphasize the agent's lack of intelligence
-        if self.dirty_room == self.world:
+        if 1 in self.dirty_room and self.dirty_room[self.world.index(1)] == 1:
             agent_percepts.append("clean")
         else:
             agent_percepts.append(None) # Appending None to emphasize the agent's lack of intelligence
@@ -203,7 +200,8 @@ class Vacuum_Environment:
     def change_environment(self):
         '''
         Changes the state of the environment based on the agent_action class variable.
-        If the dirty room because clean, the 'dirty_room' class variable becomes an empty list.
+        If the dirty room becomes clean, the 'dirty_room' class variable becomes an empty list since there are no more
+        dirty rooms in the environment.
 
         Raises
         ------
@@ -213,11 +211,12 @@ class Vacuum_Environment:
         '''
 
         if self.agent_action != "":
-            if self.agent_action == "clean_room" and self.dirty_room == self.world:
-                self.dirty_room = []
-            if self.agent_action == "move_left":
+            if self.agent_action == "suck" and 1 in self.dirty_room and self.dirty_room[self.world.index(1)] == 1:
+                self.dirty_room[self.world.index(1)] = 0
+                self.score += 1
+            if self.agent_action == "left":
                 self.world = [1, 0]
-            elif self.agent_action == "move_right":
+            elif self.agent_action == "right":
                 self.world = [0, 1]
         else:
             raise NotImplementedError("The agent is taking no action! No action is not supported!")
@@ -252,13 +251,11 @@ class Vacuum_Environment:
 if __name__ == '__main__':
     '''
     The main loop of the program.
-    
+
     Variables
     ----------
-    score : int
+    total_score : int
         The number of times the agent has completed the environment (has cleaned the dirty room).
-    environment_won : bool
-        Keeps track of when the environment has complete the environment.
     steps_max : int
         The number of steps the environment will take to complete the program.
     steps : int
@@ -271,8 +268,7 @@ if __name__ == '__main__':
         An object from the Agent() class
     '''
 
-    score = 0
-    environment_won = False
+    total_score = 0
     step_max = 10
     steps = 1
     run = True
@@ -288,6 +284,9 @@ if __name__ == '__main__':
         vacuum_world.agent_program(roomba)
         vacuum_world.change_environment()
         print(vacuum_world)
-        if vacuum_world.get_dirt_status() == [] and environment_won == False:
-            score += 1
-            environment_won = True
+
+    total_score = vacuum_world.score
+    if total_score > 0:
+        print(f"\nThe roomba has completed the task(s) in the environment(s) {total_score} times.")
+    else:
+        print("\nThe roomba has not completed the task(s) in the environment.")
