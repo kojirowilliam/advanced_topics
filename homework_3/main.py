@@ -93,7 +93,7 @@ class Vacuum_Environment:
         Sets the 'world' class variable representing the rooms of the environment and agent inside of it.
 
     create_dirt()
-        Sets the 'dirty_room' class variable representing the clean and dirty rooms inside of it.
+        Sets the 'dirty_room' class variable representing the clean and dirty room inside of it.
 
     agent_program(agent)
         Makes the object agent's percepts and sets that inside of the agent. Then, it calls agent.rules() to get the
@@ -269,7 +269,7 @@ if __name__ == '__main__':
     '''
 
     total_score = 0
-    step_max = 3
+    step_max = 1000
     steps = 0
     run = True
     vacuum_world = Vacuum_Environment()
@@ -278,14 +278,14 @@ if __name__ == '__main__':
     print(f"Initial State: {vacuum_world}")
     roomba = Agent()
     while run:
-        steps += 1
         if steps == step_max:
             run = False
         vacuum_world.agent_program(roomba)
         vacuum_world.change_environment()
         print(vacuum_world)
+        steps += 1
 
-    total_score = vacuum_world.score
+    total_score += vacuum_world.score
     if total_score > 0:
         print(f"\nThe roomba has completed the task(s) in the environment(s) {total_score} times.")
     else:
