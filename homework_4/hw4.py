@@ -83,22 +83,31 @@ class Agent:
             "back": "error"
         }
 
-        last_percept = self.percepts[-1]
+        dirt_percept = self.percepts[-1][-1]
+        bump_percept = self.percepts[-1][-2]
 
-        if last_percept == "dirty":  # duh
+        movement_decrypt = {
+            right: {[0, 1]: [-1, 0], [0, -1]: [1,0], [1,0]: [0,1], [-1, 0]: [0, -1]}
+            left:
+            forward:
+            back:
+        }
+
+        if dirt_percept == "dirty":  # duh
             self.action = "suck"
             self.performance += 1
+            return self.action
 
-        if last_percept == "clean":  # if we haven't tried to move yet, let's move right
-            self.action = "right"
+        if dirt_percept == "clean":  # if we haven't tried to move yet, let's move right
+            if last_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
+                self.action = rules_dict.get(self.action)
+            else:
+                self.action = "right"
 
-        if last_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
-            self.action = rules_dict.get(self.action)
+            if self.action == "error":  # we've tried everything and nothing worked, throw error
+                raise AttributeError("Roomba is stuck in a hole, no possible movements")
 
-        if self.action == "error":  # we've tried everything and nothing worked, throw error
-            raise AttributeError("Roomba is stuck in a hole, no possible movements")
-
-        return self.action
+            return self.action
 
 
 class Vacuum_Environment:
@@ -207,6 +216,11 @@ class Vacuum_Environment:
         else:
             raise AttributeError("Can't create new dirt. Pre-existing dirt exists!")
 
+    def agent_percept(self, agent):
+        agent_dirt_sensor(agent)
+        agent_bump_sensor(agent)
+        agent.set_percepts(self.agent_percepts_buffer)
+
     def agent_dirt_sensor(self, agent):
         '''
         Adds and sets that inside of the agent. Then, it calls agent.rules() to get the
@@ -221,8 +235,6 @@ class Vacuum_Environment:
             self.agent_percepts_buffer.append("clean")
         else:
             self.agent_percepts_buffer.append("dirty")
-
-        agent.set_percepts(agent_percepts)
 
     def agent_bump_sensor(self, agent):
         '''
@@ -239,8 +251,6 @@ class Vacuum_Environment:
             self.bump = False
         else:
             self.agent_percepts_buffer.append("no bump")
-
-        agent.set_percepts(self.agent_percepts_buffer)
 
     def agent_update(self, agent):
         self.agent_action = agent.rules()
