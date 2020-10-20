@@ -1,10 +1,8 @@
 from random import randint
 import logging
 
-
 def setup_logging(level=logging.DEBUG):
     logging.basicConfig(level=level, format='%(asctime)s{%(levelname)s} %(message)s', datefmt='%H:%M:%S')
-
 
 # shorthand convenience methods for using logger
 global debug, warn, info, error, crash
@@ -18,13 +16,8 @@ crash = logging.critical
 # debug and warn messages will be skipped
 setup_logging(logging.WARNING)
 
-movement_decrypt_old = {
-    right: {[0, 1]: [-1, 0], [0, -1]: [1, 0], [1, 0]: [0, 1], [-1, 0]: [0, -1]},
-    left: {[0, 1]: [1, 0], [0, -1]: [-1, 0], [1, 0]: [0, -1], [-1, 0]: [0, 1]},
-    forward: {[0, 1]: [0, 1], [0, -1]: [0, -1], [1, 0]: [1, 0], [-1, 0]: [-1, 0]},
-    back: {[0, 1]: [0, -1], [0, -1]: [0, 1], [1, 0]: [-1, 0], [-1, 0]: [1, 0]}
-}
-
+# the first definition is the last cardinal direction that the agent moved, this is where the agent is "facing"
+# the second dictionary defines what this means for the relative actions of the agent, for example, if you're facing down and take a right, that's going left in world directions
 movement_decrypt = {
     right: {"right": "down", "left": "up", "forward": "right", "back": "left"},
     left: {"right": "up", "left": "down", "forward": "left", "back": "right"},
@@ -32,6 +25,7 @@ movement_decrypt = {
     down: {"right": "left", "left": "right", "forward": "down", "back": "up"}
 }
 
+# this converts cardinal movements to vectors
 string_movement_to_vector = {
     right: [0,1],
     left: [0,-1],
@@ -39,7 +33,6 @@ string_movement_to_vector = {
     down: [1,0],
     suck: [-99,-99] # should throw error
 }
-
 
 class Agent:
     '''
@@ -87,7 +80,6 @@ class Agent:
 
         self.percepts = agent_percepts
 
-
     def rules(self):
         '''
         Returns an action depending on the agent's perceptions of the environment.
@@ -100,11 +92,20 @@ class Agent:
 
         rules_dict = {
             # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is
-            # looking, not cardinal enviornment directions
+            # looking, not cardinal environment directions
             "right": "forward",
             "forward": "left",
             "left": "back",
             "back": "error"
+        }
+
+        reverse_dict = {
+            # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is
+            # looking, not cardinal environment directions
+            "right": "left",
+            "forward": "back",
+            "left": "right",
+            "back": "forward"
         }
 
         dirt_percept = self.percepts[-1][-1]
@@ -114,10 +115,13 @@ class Agent:
             self.action = "suck"
             self.performance += 1
         else:  # if we haven't tried to move yet, let's move right
-            if last_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
+            if bump_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
                 self.action = rules_dict.get(self.action)
             else:
-                self.action = "right"
+                if randint(0, 100) < 5:
+                    self.action = reverse_dict.get(self.action)
+                else:
+                    self.action = "right"
 
             if self.action == "error":  # we've tried everything and nothing worked, throw error
                 raise AttributeError("Roomba is stuck in a hole, no possible movements")
@@ -182,11 +186,20 @@ class ModelAgent:
 
         rules_dict = {
             # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is
-            # looking, not cardinal enviornment directions
+            # looking, not cardinal environment directions
             "right": "forward",
             "forward": "left",
             "left": "back",
             "back": "error"
+        }
+
+        reverse_dict = {
+            # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is
+            # looking, not cardinal environment directions
+            "right": "left",
+            "forward": "back",
+            "left": "right",
+            "back": "forward"
         }
 
         dirt_percept = self.percepts[-1][-1]
@@ -196,10 +209,13 @@ class ModelAgent:
             self.action = "suck"
             self.performance += 1
         else:  # if we haven't tried to move yet, let's move right
-            if last_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
+            if bump_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
                 self.action = rules_dict.get(self.action)
             else:
-                self.action = "right"
+                if randint(0, 100) < 5:
+                    self.action = reverse_dict.get(self.action)
+                else:
+                    self.action = "right"
 
             if self.action == "error":  # we've tried everything and nothing worked, throw error
                 raise AttributeError("Roomba is stuck in a hole, no possible movements")
@@ -253,7 +269,6 @@ class ModelAgent:
                     templist=[-]*row_dif                                      # filler list
                     world[agent_row].extend(templist)                         # insterts filler list into agent's new row
                     world[agent_row].insert(agent_col,0)                      # adds zero at agent's current location
-
 
 class Vacuum_Environment:
     """
@@ -395,7 +410,6 @@ class Vacuum_Environment:
         self.agent_action_relative = agent.rules()
         if self.agent_action_relative != "suck":
             self.agent_action = movement_decrypt.get(self.agent_last_movement).get(self.agent_action_relative)
-            self.agent_last_movement = self.agent_action
         else:
             self.agent_action = self.agent_action_relative
 
@@ -420,6 +434,7 @@ class Vacuum_Environment:
             return old_position
         else:
             return test_position
+            self.agent_last_movement = self.agent_action
 
     def update_agent_position(self, position):
         "make agent position" = position
@@ -436,7 +451,6 @@ class Vacuum_Environment:
         '''
 
         return f"world = {self.world}, dirty_room = {self.dirty_room}"
-
 
 if __name__ == '__main__':
     '''
