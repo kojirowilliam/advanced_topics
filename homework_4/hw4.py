@@ -195,34 +195,42 @@ class ModelAgent:
             "back": "error"
         }
 
-        reverse_dict = {
-            # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is
-            # looking, not cardinal environment directions
-            "right": "left",
-            "forward": "back",
-            "left": "right",
-            "back": "forward"
-        }
-
         dirt_percept = self.percepts[-1][-1]
         bump_percept = self.percepts[-1][-2]
 
         if dirt_percept == "dirty":  # duh
             self.action = "suck"
             self.performance += 1
-        else:  # if we haven't tried to move yet, let's move right
-            if bump_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
-                self.action = rules_dict.get(self.action)
-            else:
-                if randint(0, 100) < 5:
-                    self.action = reverse_dict.get(self.action)
-                else:
-                    self.action = "right"
+        else:
+            # if we haven't tried to move yet, let's move right
+            virtual_ruleset(self, self.action, bump_percept)
 
-            if self.action == "error":  # we've tried everything and nothing worked, throw error
-                raise AttributeError("Roomba is stuck in a hole, no possible movements")
 
         return self.action
+
+    def virtual_ruleset(self, prev_action, bump_percept):
+        if bump_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
+            proposed_action = rules_dict.get(prev_action)
+        else:
+            proposed_action = "right"
+
+        if proposed_action == "error":
+            # we've tried everything and nothing worked, check for virtual blocks, if not error
+            if "theres no virtual blocks" = "test"
+                raise AttributeError("Roomba is stuck in a hole")
+            else:
+                # delete virtual blocks
+                # continue and attach
+                virtual_ruleset("right", "no bump")
+                return
+
+        if virtual_bump_check(proposed_action):
+            virtual_ruleset(proposed_action, "bump")
+        else:
+            self.action = proposed_action
+
+    def virtual_bump_check(self, proposed_action):
+        return true
     
     def mapping(self, agent_percepts):
         '''agent tries to construct a map of the world based on past experience'''
