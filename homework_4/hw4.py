@@ -34,6 +34,8 @@ string_movement_to_vector = {
     suck: [-99,-99] # should throw error
 }
 
+
+
 class Agent:
     '''
     A class that represents an Agent in the Environment.
@@ -435,6 +437,261 @@ class Vacuum_Environment:
         else:
             return test_position
             self.agent_last_movement = self.agent_action
+
+    def update_agent_position(self, position):
+        "make agent position" = position
+
+    def __repr__(self):
+        '''
+        Represents the class when printed as a formatted string of the 'world' class variable and 'dirty_room' class
+        variable.
+
+        Returns
+        -------
+        str
+            an formatted string representing the 'world' class variable and 'dirty_room' class variable.
+        '''
+
+        return f"world = {self.world}, dirty_room = {self.dirty_room}"
+
+class Simplest_Agent:
+    '''
+    A class that represents an Agent in the Environment.
+
+    ...
+
+    Attributes
+    ----------
+    percepts : list
+        tells whether the agent is in the left room and whether the room it's currently in is clean.
+
+    Methods
+    -------
+    set_percepts(agent_percepts)
+        sets the agent's perception of the environment.
+    rules()
+        returns an action based on the perception of the environment from the perspective of the agent.
+    '''
+
+    def __init__(self, percepts=None):
+        '''
+        Parameters
+        ----------
+        percepts : list
+            a list of strings and/or Nones representing the perception of the environment from the perspective of
+            the agent.
+        performance : int
+            an integer representing the number of times the agent has completed a task.
+        '''
+
+        self.percepts = percepts
+        self.performance = 0
+        self.action = "right"
+
+    def set_percepts(self, agent_percepts):
+        '''
+        Sets the agent's perception of the environment.
+
+        Parameters
+        ----------
+        percepts : list
+            A list of strings and/or Nones that represents the environment from the Agent's perceptions
+        '''
+
+        self.percepts = agent_percepts
+
+    def rules(self):
+        '''
+        Returns an action depending on the agent's perceptions of the environment.
+
+        Returns
+        -------
+        action : str
+            a string representing the action the Agent wants to make in the environment.
+        '''
+
+        dirt_percept = self.percepts[-1][-1]
+        bump_percept = self.percepts[-1][-2]
+
+        if dirt_percept == "dirty":  # duh
+            self.action = "suck"
+            self.performance += 1
+        else:  # if we haven't tried to move yet, let's move right
+            if bump_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
+                if randint(0, 100) < 5:
+                    self.action = "right"
+                else:
+                    self.action = "left"
+            else:
+                self.action = "forward"
+
+        return self.action
+
+class Simplest_Vacuum_Environment:
+    """
+    A class representing a room with nothing (0), floors (1), walls (2), dirty_floor (3), dirty_walls (4), agent (*)
+
+    ...
+
+    Attributes
+    ----------
+    world : list
+        an integer list representing the room and the objects within the room: nothing (0), floors (1), walls (2),
+        dirty_floor (3), dirty_walls (4)
+    agent_action : str
+        the action the agent will do in the environment.
+    environment_won : bool
+        Keeps track of whether the environment it is currently in is already won.
+    score : int
+        Keeps track of the number of times the agent has completed the environments' tasks.
+
+    Methods
+    -------
+    create_world()
+        Sets the 'world' class variable representing the room and the objects within it.
+
+    create_dirt(number_of_dirt)
+        Spawns in "number_of_dirt" many dirt into the room environment.
+
+    agent_program(agent)
+        Makes the object agent's percepts and sets that inside of the agent. Then, it calls agent.rules() to get the
+        agent's action and sets that equal to the 'agent_action' class variable.
+
+    change_environment()
+        Changes the state of the environment based on the agent_action class variable.
+
+    get_dirt_status()
+        Getter for the status of the number of dirty rooms in the room environment.
+
+    __repr__()
+        Represents the class when printed as a formatted string of the 'world' class variable with the agent's position
+        in the room environment represented by a asterisks (*)
+    """
+
+    def __init__(self):
+        '''
+        Parameters
+        ----------
+        world : list
+            an integer list representing the room and the objects within the room: nothing (0), floors (1), walls (2),
+            dirty_floor (3), dirty_walls (4)
+        agent_action : str
+            the action the agent will do in the environment.
+        environment_won : bool
+            Keeps track of whether the environment it is currently in is already won.
+        score : int
+            Keeps track of the number of times the agent has completed the environments' tasks.
+        '''
+
+        self.world = []
+        self.agent_action = ""
+        self.agent_last_movement = "right"
+        self.agent_action_relative = ""
+        self.environment_won = False
+        self.score = 0
+        self.agent_percepts = []
+        self.agent_percepts_buffer = []
+
+    def create_world(self, world_config):
+        '''
+        Sets the 'world' class variable representing the rooms of the environment and agent inside of it.
+        The 'world' class variable represents the location of the agent and the room that it is in.
+
+        Parameters
+        ----------
+        world_config : list
+            an integer list representing the room and the objects within the room: nothing (0), floors (1), walls (2),
+            dirty_floor (3), dirty_walls (4)
+
+        Raises
+        ------
+        AttributeError
+            If there is already a pre-existing 'world', this will prevent overriding it with a new 'world'.
+        '''
+
+        if self.world == []:
+            if world_config != None:
+                raise NotImplementedError("Other world configurations haven't been created yet!")
+            else:
+                self.world = world_config
+        else:
+            raise AttributeError("Can't create new world. Pre-existing world exists!")
+
+    def do_kids_create_dirt(self):
+        '''
+        Randomly creates dirt in empty spaces accoding to the 10% kids creating dirt chance.
+
+        '''
+
+        for "all empty spaces"
+            if randint(0, 100) < 11
+                "make that space dirty"
+
+    def agent_percept(self, agent):
+        agent_dirt_sensor(agent)
+        agent_bump_sensor(agent)
+        agent.set_percepts(self.agent_percepts_buffer)
+
+    def agent_dirt_sensor(self, agent):
+        '''
+        Adds and sets that inside of the agent. Then, it calls agent.rules() to get the
+        agent's action and sets that equal to the 'agent_action' class variable.
+
+        Parameters
+        ----------
+        agent : Object of Agent class
+        '''
+
+        if "we're in a clean space":
+            self.agent_percepts_buffer.append("clean")
+        else:
+            self.agent_percepts_buffer.append("dirty")
+
+    def agent_bump_sensor(self, agent):
+        '''
+        Makes the object agent's percepts and sets that inside of the agent. Then, it calls agent.rules() to get the
+        agent's action and sets that equal to the 'agent_action' class variable.
+
+        Parameters
+        ----------
+        agent : Object of Agent class
+        '''
+
+        if self.bump:
+            self.agent_percepts_buffer.append("bump")
+            self.bump = False
+        else:
+            self.agent_percepts_buffer.append("no bump")
+
+    def agent_update(self, agent):
+        self.agent_action_relative = agent.rules()
+        if self.agent_action_relative != "suck":
+            self.agent_action = movement_decrypt.get(self.agent_last_movement).get(self.agent_action_relative)
+            self.agent_last_movement = self.agent_action
+        else:
+            self.agent_action = self.agent_action_relative
+
+    def change_environment(self):
+        '''
+        Changes the state of the environment based on the agent_action class variable.
+        If the dirty room becomes clean, the 'dirty_room' class variable becomes an empty list since there are no more
+        dirty rooms in the environment.
+        '''
+
+        if self.agent_action == "suck" and "we're in a dirty space":
+            "make dirty room clean"
+            self.score += 1
+        else:
+            movement_vector = string_movement_to_vector.get(self.agent_action)
+            test_position = "take position and add movement_vector"
+            agent_position = check_bounds(test_position, agent_position)
+
+    def check_bounds(self, test_position, old_position):
+        if "test_postion is out of bounds or a wall is there":
+            self.bump = True
+            return old_position
+        else:
+            return test_position
 
     def update_agent_position(self, position):
         "make agent position" = position
