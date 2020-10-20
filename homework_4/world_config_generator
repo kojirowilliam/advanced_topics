@@ -1,0 +1,31 @@
+from random import randint
+
+
+class World_Generator:
+    '''
+    A class that generates 6 by 7 room for the hw4 roomba.
+
+    ...
+
+    Attributes
+    ----------
+    percepts : list
+        tells whether the agent is in the left room and whether the room it's currently in is clean.
+
+    Methods
+    -------
+    set_percepts(agent_percepts)
+        sets the agent's perception of the environment.
+    rules()
+        returns an action based on the perception of the environment from the perspective of the agent.
+    '''
+
+#NOTE: Might use perlin noise for the walls
+
+    rows = []
+    for i in range(7):  # The columns
+        for j in range(6):  # The rows
+            if i or j == 0:  # If the current location is a perimeter of the room
+                rows.append(randint(0, 5))  # Allows the position to become any object
+            else:  # If it's not a perimeter position
+                rows.append(randint(1,5))

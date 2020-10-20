@@ -76,7 +76,8 @@ class Agent:
         '''
 
         rules_dict = {
-            # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is looking, not cardinal enviornment directions
+            # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is
+            # looking, not cardinal enviornment directions
             "right": "forward",
             "forward": "left",
             "left": "back",
@@ -92,7 +93,8 @@ class Agent:
         if last_percept == "clean":  # if we haven't tried to move yet, let's move right
             self.action = "right"
 
-        if last_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
+        if last_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it
+                                    # to find a new one
             self.action = rules_dict.get(self.action)
 
         if self.action == "error":  # we've tried everything and nothing worked, throw error
@@ -103,18 +105,15 @@ class Agent:
 
 class Vacuum_Environment:
     """
-    A class representing one clean room and one dirty room for a vacuum agent.
+    A class representing a room with nothing (0), floors (1), walls (2), dirty_floor (3), dirty_walls (4), agent (*)
 
     ...
 
     Attributes
     ----------
     world : list
-        an integer list representing the two rooms and the agent: A agent is represented with a 1 and the empty room
-        with a 0.
-    dirty_room : list
-        an integer list representing the two rooms: a clean room is represented with a 0 and a dirty room is represented
-        with a 1.
+        an integer list representing the room and the objects within the room: nothing (0), floors (1), walls (2),
+        dirty_floor (3), dirty_walls (4)
     agent_action : str
         the action the agent will do in the environment.
     environment_won : bool
@@ -125,10 +124,10 @@ class Vacuum_Environment:
     Methods
     -------
     create_world()
-        Sets the 'world' class variable representing the rooms of the environment and agent inside of it.
+        Sets the 'world' class variable representing the room and the objects within it.
 
-    create_dirt()
-        Sets the 'dirty_room' class variable representing the clean and dirty room inside of it.
+    create_dirt(number_of_dirt)
+        Spawns in "number_of_dirt" many dirt into the room environment.
 
     agent_program(agent)
         Makes the object agent's percepts and sets that inside of the agent. Then, it calls agent.rules() to get the
@@ -138,11 +137,11 @@ class Vacuum_Environment:
         Changes the state of the environment based on the agent_action class variable.
 
     get_dirt_status()
-        Getter for the status of the dirty room in the environment.
+        Getter for the status of the number of dirty rooms in the room environment.
 
     __repr__()
-        Represents the class when printed as a formatted string of the 'world' class variable and 'dirty_room' class
-        variable.
+        Represents the class when printed as a formatted string of the 'world' class variable with the agent's position
+        in the room environment represented by a asterisks (*)
     """
 
     def __init__(self):
@@ -150,11 +149,8 @@ class Vacuum_Environment:
         Parameters
         ----------
         world : list
-            an integer list representing the two rooms and the agent: A agent is represented with a 1 and the empty room
-            with a 0.
-        dirty_room : list
-            an integer list representing the two rooms: a clean room is represented with a 0 and a dirty room is
-            represented with a 1.
+            an integer list representing the room and the objects within the room: nothing (0), floors (1), walls (2),
+            dirty_floor (3), dirty_walls (4)
         agent_action : str
             the action the agent will do in the environment.
         environment_won : bool
@@ -164,17 +160,22 @@ class Vacuum_Environment:
         '''
 
         self.world = []
-        self.dirty_room = []
         self.agent_action = ""
         self.environment_won = False
         self.score = 0
         self.agent_percepts = []
         self.agent_percepts_buffer = []
 
-    def create_world(self):
+    def create_world(self, world_config):
         '''
         Sets the 'world' class variable representing the rooms of the environment and agent inside of it.
         The 'world' class variable represents the location of the agent and the room that it is in.
+
+        Parameters
+        ----------
+        world_config : list
+            an integer list representing the room and the objects within the room: nothing (0), floors (1), walls (2),
+            dirty_floor (3), dirty_walls (4)
 
         Raises
         ------
@@ -183,11 +184,10 @@ class Vacuum_Environment:
         '''
 
         if self.world == []:
-            world = randint(0, 1)
-            if world:
-                self.world = [0, 1]
+            if world_config != None:
+                raise NotImplementedError("Other world configurations haven't been created yet!")
             else:
-                self.world = [1, 0]
+                self.world = world_config
         else:
             raise AttributeError("Can't create new world. Pre-existing world exists!")
 
@@ -275,7 +275,7 @@ class Vacuum_Environment:
                 "take the agent pos and move it back"
                 update_agent_position(check_bounds("this new postion"))
         else:
-            raise NotImplementedError("The agent is taking no action! No action is not supported!")
+            raise ("The agent is taking no action! No action is not supported!")
 
     def check_bounds(self, test_position, old_position):
         if "test_postion is out of bounds":
