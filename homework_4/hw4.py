@@ -163,33 +163,43 @@ class ModelAgent:
         action : str
             a string representing the action the Agent wants to make in the environment.
         '''
-    
-        rules_dict = { # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is looking, not cardinal enviornment directions
+
+        rules_dict = {
+            # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is
+            # looking, not cardinal enviornment directions
             "right": "forward",
             "forward": "left",
             "left": "back",
             "back": "error"
         }
-        
-        last_percept = self.percepts[-1]
-        
-        if last_percept == "dirty": # duh
+
+        dirt_percept = self.percepts[-1][-1]
+        bump_percept = self.percepts[-1][-2]
+
+        movement_decrypt = {
+            right: {[0, 1]: [-1, 0], [0, -1]: [1, 0], [1, 0]: [0, 1], [-1, 0]: [0, -1]},
+            left: {[0, 1]: [1, 0], [0, -1]: [-1, 0], [1, 0]: [0, -1], [-1, 0]: [0, 1]},
+            forward: {[0, 1]: [0, 1], [0, -1]: [0, -1], [1, 0]: [1, 0], [-1, 0]: [-1, 0]},
+            back: {[0, 1]: [0, -1], [0, -1]: [0, 1], [1, 0]: [-1, 0], [-1, 0]: [1, 0]}
+        }
+
+        if dirt_percept == "dirty":  # duh
             self.action = "suck"
             self.performance += 1
-            
-        if last_percept == "clean": # if we haven't tried to move yet, let's move right
-            self.action = "right"
+        else:  # if we haven't tried to move yet, let's move right
+            if last_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
+                self.action = rules_dict.get(self.action)
+            else:
+                self.action = "right"
 
-        if last_percept == "bump": # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
-            self.action = rules_dict.get(self.action)
-        
-        if self.action == "error": # we've tried everything and nothing worked, throw error
-            raise AttributeError("Roomba is stuck in a hole, no possible movements")
-        
+            if self.action == "error":  # we've tried everything and nothing worked, throw error
+                raise AttributeError("Roomba is stuck in a hole, no possible movements")
+
         return self.action
     
-    def mapping(self, agent_percepts, self.action):
+    def mapping(self, agent_percepts, agent_action):
         '''agent tries to construct a map of the world based on past experience'''
+        self.action = agent_action
         world=[[0]]
         agent_col=0                                                           # variable keeps track of agent's collumn (relative to starting location)
         agent_row=0                                                           # keeps track of agent's row
