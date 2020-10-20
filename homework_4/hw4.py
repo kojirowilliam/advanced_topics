@@ -119,6 +119,134 @@ class Agent:
 
             return self.action
 
+class ModelAgent:
+    '''
+    A class that represents an Agent in the Environment.
+
+    ...
+
+    Attributes
+    ----------
+    percepts : list
+        tells whether the agent has bumped into a wall, whether the ground/wall is clean
+
+    Methods
+    -------
+    set_percepts(agent_percepts)
+        sets the agent's perception of the environment.
+    rules()
+        returns an action based on the perception of the environment from the perspective of the agent.
+    '''
+
+    def __init__(self, percepts=None):
+        '''
+        Parameters
+        ----------
+        percepts : list
+            a list of strings and/or Nones representing the perception of the environment from the perspective of
+            the agent.
+        performance : int
+            an integer representing the number of times the agent has completed a task.
+        '''
+
+        self.percepts = percepts
+        self.performance = 0
+        self.action = "right"
+
+    def set_percepts(self, agent_percepts):
+        '''
+        Sets the agent's perception of the environment.
+
+        Parameters
+        ----------
+        percepts : list
+            A list of strings and/or Nones that represents the environment from the Agent's perceptions
+        '''
+
+        self.percepts = agent_percepts
+
+    def rules(self):
+        '''
+        Returns an action depending on the agent's perceptions of the environment.
+
+        Returns
+        -------
+        action : str
+            a string representing the action the Agent wants to make in the environment.
+        '''
+    
+        rules_dict = { # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is looking, not cardinal enviornment directions
+            "right": "forward",
+            "forward": "left",
+            "left": "back",
+            "back": "error"
+        }
+        
+        last_percept = self.percepts[-1]
+        
+        if last_percept == "dirty": # duh
+            self.action = "suck"
+            self.performance += 1
+            
+        if last_percept == "clean": # if we haven't tried to move yet, let's move right
+            self.action = "right"
+
+        if last_percept == "bump": # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
+            self.action = rules_dict.get(self.action)
+        
+        if self.action == "error": # we've tried everything and nothing worked, throw error
+            raise AttributeError("Roomba is stuck in a hole, no possible movements")
+        
+        return self.action
+    
+    def mapping(self, agent_percepts, self.action):
+        '''agent tries to construct a map of the world based on past experience'''
+        world=[[0]]
+        agent_col=0                                                           # variable keeps track of agent's collumn (relative to starting location)
+        agent_row=0                                                           # keeps track of agent's row
+        if self.action=="right" and agent_percepts!= "bump":                  # agent has successfully moved right
+            agent_col+=1
+            if len(world[agent_row])>=agent_col:                              # checks if this area of the row has already been explored
+                world[agent_row][agent_col]=0
+            if len(world[agent_row])<agent_col-1:                             # makes sure agent has only been moved by one square (I don't know what would cause a skip but I want to make sure we know if it happens)
+                AttributeError("Mapping error: agent has skipped a square")
+            else:                                                             # agent has not already mapped this square
+                world[agent_row].insert(agent_col,0)                          # zero is added at agent's new location
+        if self.action=="left" and agent_percepts!= "bump":
+            if agent_col>0:                                                   # checks if agent is on the edge of its mapped area
+                agent_col-=1
+                world[agent_row][agent_col]=0                                 # if not, adds zero at agent's new location
+            else:
+                world[agent_row].insert(agent_col,0)                          # adds zero at the left edge of the mapped area
+        if self.action=="up" and agent_percepts!= "bump":
+            if agent_row==0:
+                templist=[-]*(agent_col-((agent_col>0)*1))                    # makes a list of filler items to make sure that collumns are aligned, only subtracts 1 if the column number isn't 0
+                world.insert(0,templist)                                      # adds filler list to the row above agent
+                world[0].append(0)                                            # adds a zero at the agent's new position
+            else:
+                agent_row-=1
+                if len(world[agent_row])>len(world[agent_row+1]):             # checks if new row has more filled in slots than old row (has it been explored more)
+                    world[agent_row].insert(agent_col,0)                      # makes sure agent's new position is marked as empty
+                else:
+                    row_dif=(len(world[agent_row+1]-len(world[agent_row])))-1 # prepares filler list to make up for difference in row lengths (due to difference in exploration)
+                    templist=[-]*row_dif                                      # filler list
+                    world[agent_row].extend(templist)                         # inserts filler list to agent's new row
+                    world[agent_row].insert(agent_col,0)                      # adds 0 at agent's new position
+        if self.action=="down" and agent_percepts!="bump":
+            agent_row+=1
+            if world[agent_row-1]==world[-1]:                                 # checks if previous row was the bottom row
+                templist=[-]*(agent_col-((agent_col>0)*1))
+                world.append(templist)
+                world[agent_row].insert(agent_col,0)
+            else:
+                if len(world[agent_row])>len(world[agent_row-1]):             # checks if new row has been filled in more than old row
+                    world[agent_row].insert(agent_col,0)                      # makes sure agent's position is marked as empty
+                else:
+                    row_dif=len(world[agent_row])-len(world[agent_row-1])-1   # prepares filler list to make up for difference in row lengths
+                    templist=[-]*row_dif                                      # filler list
+                    world[agent_row].extend(templist)                         # insterts filler list into agent's new row
+                    world[agent_row].insert(agent_col,0)                      # adds zero at agent's current location
+
 
 class Vacuum_Environment:
     """
