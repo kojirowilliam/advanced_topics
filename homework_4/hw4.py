@@ -18,6 +18,28 @@ crash = logging.critical
 # debug and warn messages will be skipped
 setup_logging(logging.WARNING)
 
+movement_decrypt_old = {
+    right: {[0, 1]: [-1, 0], [0, -1]: [1, 0], [1, 0]: [0, 1], [-1, 0]: [0, -1]},
+    left: {[0, 1]: [1, 0], [0, -1]: [-1, 0], [1, 0]: [0, -1], [-1, 0]: [0, 1]},
+    forward: {[0, 1]: [0, 1], [0, -1]: [0, -1], [1, 0]: [1, 0], [-1, 0]: [-1, 0]},
+    back: {[0, 1]: [0, -1], [0, -1]: [0, 1], [1, 0]: [-1, 0], [-1, 0]: [1, 0]}
+}
+
+movement_decrypt = {
+    right: {"right": "down", "left": "up", "forward": "right", "back": "left"},
+    left: {"right": "up", "left": "down", "forward": "left", "back": "right"},
+    up: {"right": "right", "left": "left", "forward": "up", "back": "down"},
+    down: {"right": "left", "left": "right", "forward": "down", "back": "up"}
+}
+
+string_movement_to_vector = {
+    right: [0,1],
+    left: [0,-1],
+    up: [-1,0],
+    down: [1,0],
+    suck: [-99,-99] # should throw error
+}
+
 
 class Agent:
     '''
@@ -65,6 +87,7 @@ class Agent:
 
         self.percepts = agent_percepts
 
+
     def rules(self):
         '''
         Returns an action depending on the agent's perceptions of the environment.
@@ -86,13 +109,6 @@ class Agent:
 
         dirt_percept = self.percepts[-1][-1]
         bump_percept = self.percepts[-1][-2]
-
-        movement_decrypt = {
-            right: {[0, 1]: [-1, 0], [0, -1]: [1,0], [1,0]: [0,1], [-1, 0]: [0, -1]},
-            left: {[0, 1]: [1, 0], [0, -1]: [-1,0], [1,0]: [0,-1], [-1, 0]: [0, 1]},
-            forward: {[0, 1]: [0, 1], [0, -1]: [0,-1], [1,0]: [1,0], [-1, 0]: [-1, 0]},
-            back: {[0, 1]: [0, -1], [0, -1]: [0,1], [1,0]: [-1,0], [-1, 0]: [1, 0]}
-        }
 
         if dirt_percept == "dirty":  # duh
             self.action = "suck"
@@ -176,13 +192,6 @@ class ModelAgent:
         dirt_percept = self.percepts[-1][-1]
         bump_percept = self.percepts[-1][-2]
 
-        movement_decrypt = {
-            right: {[0, 1]: [-1, 0], [0, -1]: [1, 0], [1, 0]: [0, 1], [-1, 0]: [0, -1]},
-            left: {[0, 1]: [1, 0], [0, -1]: [-1, 0], [1, 0]: [0, -1], [-1, 0]: [0, 1]},
-            forward: {[0, 1]: [0, 1], [0, -1]: [0, -1], [1, 0]: [1, 0], [-1, 0]: [-1, 0]},
-            back: {[0, 1]: [0, -1], [0, -1]: [0, 1], [1, 0]: [-1, 0], [-1, 0]: [1, 0]}
-        }
-
         if dirt_percept == "dirty":  # duh
             self.action = "suck"
             self.performance += 1
@@ -197,9 +206,8 @@ class ModelAgent:
 
         return self.action
     
-    def mapping(self, agent_percepts, agent_action):
+    def mapping(self, agent_percepts):
         '''agent tries to construct a map of the world based on past experience'''
-        self.action = agent_action
         world=[[0]]
         agent_col=0                                                           # variable keeps track of agent's collumn (relative to starting location)
         agent_row=0                                                           # keeps track of agent's row
@@ -305,6 +313,8 @@ class Vacuum_Environment:
 
         self.world = []
         self.agent_action = ""
+        self.agent_last_movement = "right"
+        self.agent_action_relative = ""
         self.environment_won = False
         self.score = 0
         self.agent_percepts = []
@@ -335,21 +345,15 @@ class Vacuum_Environment:
         else:
             raise AttributeError("Can't create new world. Pre-existing world exists!")
 
-    def create_dirt(self):
+    def do_kids_create_dirt(self):
         '''
-        Sets the 'dirty_room' class variable representing clean rooms with 0 and dirty rooms with 1 inside of the environment.
-        The 'dirty_room' class variable represents the location of the dirty room with a 1 and the clean room with a 0.
+        Randomly creates dirt in empty spaces accoding to the 10% kids creating dirt chance.
 
-        Raises
-        ------
-        AttributeError
-            If there is already a pre-existing 'dirty_room', this will prevent overriding it with a new 'dirty_room'.
         '''
 
-        if self.dirty_room == []:
-            self.dirty_room = [randint(0, 1), randint(0, 1)]
-        else:
-            raise AttributeError("Can't create new dirt. Pre-existing dirt exists!")
+        for "all empty spaces"
+            if randint(0, 100) < 11
+                "make that space dirty"
 
     def agent_percept(self, agent):
         agent_dirt_sensor(agent)
@@ -388,45 +392,32 @@ class Vacuum_Environment:
             self.agent_percepts_buffer.append("no bump")
 
     def agent_update(self, agent):
-        self.agent_action = agent.rules()
+        self.agent_action_relative = agent.rules()
+        if self.agent_action_relative != "suck":
+            self.agent_action = movement_decrypt.get(self.agent_last_movement).get(self.agent_action_relative)
+            self.agent_last_movement = self.agent_action
+        else:
+            self.agent_action = self.agent_action_relative
 
     def change_environment(self):
         '''
         Changes the state of the environment based on the agent_action class variable.
         If the dirty room becomes clean, the 'dirty_room' class variable becomes an empty list since there are no more
         dirty rooms in the environment.
-
-        Raises
-        ------
-        NotImplementedError
-            If the 'agent_action' is an empty string, that means that the agent isn't doing anything. For this agent,
-            this isn't a support action.
         '''
 
-        if self.agent_action != "":
-            if self.agent_action == "suck" and "we're in a dirty space":
-                "make dirty room clean"
-                self.score += 1
-            if self.agent_action == "left":
-                "take the agent pos and move it left"
-                update_agent_position(check_bounds("this new postion"))
-            elif self.agent_action == "right":
-                "take the agent pos and move it right"
-                update_agent_position(check_bounds("this new postion"))
-            elif self.agent_action == "forward":
-                "take the agent pos and move it forward"
-                update_agent_position(check_bounds("this new postion"))
-            elif self.agent_action == "back":
-                "take the agent pos and move it back"
-                update_agent_position(check_bounds("this new postion"))
+        if self.agent_action == "suck" and "we're in a dirty space":
+            "make dirty room clean"
+            self.score += 1
         else:
-            raise ("The agent is taking no action! No action is not supported!")
+            movement_vector = string_movement_to_vector.get(self.agent_action)
+            test_position = "take position and add movement_vector"
+            agent_position = check_bounds(test_position, agent_position)
 
     def check_bounds(self, test_position, old_position):
-        if "test_postion is out of bounds":
+        if "test_postion is out of bounds or a wall is there":
             self.bump = True
-            return old
-            position
+            return old_position
         else:
             return test_position
 
