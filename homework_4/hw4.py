@@ -600,6 +600,7 @@ class Simplest_Vacuum_Environment:
         self.score = 0
         self.agent_percepts = []
         self.agent_percepts_buffer = []
+        self.agent_position = [0,0]
 
     def create_world(self):
         '''
@@ -651,7 +652,7 @@ class Simplest_Vacuum_Environment:
         agent : Object of Agent class
         '''
 
-        if "we're in a clean space":
+        if self.world[agent_position[0]][agent_position[1]] == 3:
             self.agent_percepts_buffer.append("clean")
         else:
             self.agent_percepts_buffer.append("dirty")
@@ -687,23 +688,23 @@ class Simplest_Vacuum_Environment:
         dirty rooms in the environment.
         '''
 
-        if self.agent_action == "suck" and "we're in a dirty space":
-            "make dirty room clean"
+        if self.agent_action == "suck" and self.world[agent_position[0]][agent_position[1]] == 3:
+            self.world[agent_position[0]][agent_position[1]] = 1
             self.score += 1
         else:
             movement_vector = string_movement_to_vector.get(self.agent_action)
-            test_position = "take position and add movement_vector"
-            agent_position = check_bounds(test_position, agent_position)
+            test_position = [agent_position[0] + movement_vector[0], agent_position[1] + movement_vector[1]]
+            self.agent_position = check_bounds(test_position, agent_position)
 
     def check_bounds(self, test_position, old_position):
-        if "test_postion is out of bounds or a wall is there":
+        if self.world[test_position[0]][test_position[1]] == 3:
             self.bump = True
             return old_position
         else:
             return test_position
 
     def update_agent_position(self, position):
-        "make agent position" = position
+        self.agent_position = position
 
     def __repr__(self):
         '''
