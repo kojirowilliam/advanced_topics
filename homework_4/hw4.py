@@ -1,6 +1,7 @@
 from random import randint
 import logging
 
+
 def setup_logging(level=logging.DEBUG):
     logging.basicConfig(level=level, format='%(asctime)s{%(levelname)s} %(message)s', datefmt='%H:%M:%S')
 
@@ -282,7 +283,7 @@ class ModelAgent:
 
 class Vacuum_Environment:
     """
-    A class representing a room with nothing (0), floors (1), walls (2), dirty_floor (3), dirty_walls (4), agent (*)
+    A class representing a room with nothing (0), floors (1), walls (2), dirty_floor (3), dirty_walls (4)
 
     ...
 
@@ -336,7 +337,7 @@ class Vacuum_Environment:
             Keeps track of the number of times the agent has completed the environments' tasks.
         '''
 
-        self.world = []
+        self.world = [[]]
         self.agent_action = ""
         self.agent_last_movement = "right"
         self.agent_action_relative = ""
@@ -537,15 +538,15 @@ class Simplest_Agent:
 
 class Simplest_Vacuum_Environment:
     """
-    A class representing a room with nothing (0), floors (1), walls (2), dirty_floor (3), dirty_walls (4), agent (*)
+    A class representing a room with nothing (0), clean (1), wall (2), dirty (3)
 
     ...
 
     Attributes
     ----------
     world : list
-        an integer list representing the room and the objects within the room: nothing (0), floors (1), walls (2),
-        dirty_floor (3), dirty_walls (4)
+        an integer list representing the room and the objects within the room: nothing (0), clean (1), wall (2),
+        dirty (3)
     agent_action : str
         the action the agent will do in the environment.
     environment_won : bool
@@ -581,8 +582,8 @@ class Simplest_Vacuum_Environment:
         Parameters
         ----------
         world : list
-            an integer list representing the room and the objects within the room: nothing (0), floors (1), walls (2),
-            dirty_floor (3), dirty_walls (4)
+            an integer list representing the room and the objects within the room: nothing (0), clean (1), wall (2),
+            dirty (3)
         agent_action : str
             the action the agent will do in the environment.
         environment_won : bool
@@ -600,40 +601,40 @@ class Simplest_Vacuum_Environment:
         self.agent_percepts = []
         self.agent_percepts_buffer = []
 
-    def create_world(self, world_config):
+    def create_world(self):
         '''
-        Sets the 'world' class variable representing the rooms of the environment and agent inside of it.
-        The 'world' class variable represents the location of the agent and the room that it is in.
+        Sets the 'world' class variable representing the different rooms in the environment.
+        The 'world' class variable is an integer list representing the environment and the objects within each room:
+        nothing (0), clean (1), wall (2), dirty (3)
 
-        Parameters
-        ----------
-        world_config : list
-            an integer list representing the room and the objects within the room: nothing (0), floors (1), walls (2),
-            dirty_floor (3), dirty_walls (4)
+        Asserts
+        -------
 
-        Raises
-        ------
-        AttributeError
-            If there is already a pre-existing 'world', this will prevent overriding it with a new 'world'.
         '''
 
-        if self.world == []:
-            if world_config != None:
-                raise NotImplementedError("Other world configurations haven't been created yet!")
-            else:
-                self.world = world_config
-        else:
-            raise AttributeError("Can't create new world. Pre-existing world exists!")
+        # TODO:KOJIRO We can import the world configuration in the main loop and then have a parameter called
+        # TODO:KOJIRO world_config that contains the configuration of the world we want to use.
+        # TODO:KOJIRO Replace the assert with logging.
+
+        from hw4_util import read_world
+        from yamada_world import yamada
+
+        assert yamada is not None, "Make sure that you have a variable name with your lastname as the configuration " \
+                                   "of your world"
+        self.world = read_world(yamada)
+
 
     def do_kids_create_dirt(self):
         '''
-        Randomly creates dirt in empty spaces accoding to the 10% kids creating dirt chance.
-
+        Randomly creates dirt in a clean room according to the 10% kids creating dirt chance.
         '''
+        if randint(0,10) == 5:
+            for list, row in enumerate(self.world):
+                for element, column in enumerate(list):  # Cycles through the elements in the world matrix.
+                    if element == 1:  # Checks to see whether the selected element is representing a clean room.
+                        if randint(0, 10) == 5: # 5 is an arbitrary number between 0 to 9. 10% chance of being true.
+                            self.world[row][column] = 3  # makes the selected clean room into a dirty room.
 
-        for "all empty spaces"
-            if randint(0, 100) < 11
-                "make that space dirty"
 
     def agent_percept(self, agent):
         agent_dirt_sensor(agent)
@@ -716,6 +717,7 @@ class Simplest_Vacuum_Environment:
         '''
 
         return f"world = {self.world}, dirty_room = {self.dirty_room}"
+
 
 if __name__ == '__main__':
     '''
