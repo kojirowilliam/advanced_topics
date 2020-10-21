@@ -1,7 +1,6 @@
 from random import randint
 import logging
 
-
 def setup_logging(level=logging.DEBUG):
     logging.basicConfig(level=level, format='%(asctime)s{%(levelname)s} %(message)s', datefmt='%H:%M:%S')
 
@@ -34,8 +33,6 @@ string_movement_to_vector = {
     down: [1,0],
     suck: [-99,-99] # should throw error
 }
-
-
 
 class Agent:
     '''
@@ -543,11 +540,14 @@ class Simplest_Agent:
         Returns an action depending on the agent's perceptions of the environment.
 
         How our rules work is such:
-        We're always sticking to the right, so the first thing we ALWAYS do is try to move right.
-        If we tried to move right last action, and we got back a bump in our percept, let's try to move Forward, etc.
-        Right -> Forward -> Left -> Back
 
-        The
+        This is the simple agent, in case Spell doesn't like what we're doing with our Reflex Agent
+        All it does is always turn left if bumped, forward if not.
+        I threw some randomness in there to help it out.
+
+        There's no action sequence here, unlike the other bot.
+        This one can get stuck much easier.
+
         -------
         action : str
             a string representing the action the Agent wants to make in the environment.
