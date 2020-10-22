@@ -87,6 +87,27 @@ class Agent(ABC):
 
 
 class Reflex_Agent(Agent):
+    '''
+    A class that represents a Reflex Agent in the Environment.
+
+    ...
+
+    Attributes
+    ----------
+    percepts : list
+        tells whether the agent has bumped into a wall, whether the ground/wall is clean
+
+    Methods
+    -------
+    agent_type()
+        returns agent name, used for agent movement types
+    rules()
+        returns an action based on the perception of the environment from the perspective of the agent.
+    '''
+
+    def agent_type(self):
+        return "Reflex_Agent"
+
     def rules(self):
         '''
         Returns an action depending on the agent's perceptions of the environment.
@@ -147,7 +168,7 @@ class Reflex_Agent(Agent):
         return self.action
 
 
-class Model_Agent:
+class Model_Based_Agent:
     '''
     A class that represents an Agent in the Environment.
 
@@ -160,11 +181,20 @@ class Model_Agent:
 
     Methods
     -------
-    set_percepts(agent_percepts)
-        sets the agent's perception of the environment.
+    agent_type()
+        returns agent name, used for agent movement types
     rules()
         returns an action based on the perception of the environment from the perspective of the agent.
+    mapping()
+        tries to construct a roomba based understanding of the enviornmetn
+    virtual bump check()
+        checks if agent will virtually bump into a virtual wall
+    virtual_rules()
+        runs the rules function recursively to find rules that apply to virtual worlds
     '''
+
+    def agent_type(self):
+        return "Model_Agent"
 
     def rules(self):
         '''
@@ -466,8 +496,8 @@ class Vacuum_Environment(ABC):
 
 
     def agent_percept(self, agent):
-        agent_dirt_sensor(agent)
-        agent_bump_sensor(agent)
+        self.agent_dirt_sensor(agent)
+        self.agent_bump_sensor(agent)
         agent.set_percepts(self.agent_percepts_buffer)
 
     def agent_dirt_sensor(self, agent):
@@ -480,7 +510,7 @@ class Vacuum_Environment(ABC):
         agent : Object of Agent class
         '''
 
-        if self.world[agent_position[0]][agent_position[1]] == 3:
+        if self.world[self.agent_position[0]][self.agent_position[1]] == 3:
             self.agent_percepts_buffer.append("clean")
         else:
             self.agent_percepts_buffer.append("dirty")
@@ -505,7 +535,6 @@ class Vacuum_Environment(ABC):
         self.agent_action_relative = agent.rules()
         if self.agent_action_relative != "suck":
             self.agent_action = movement_decrypt.get(self.agent_last_movement).get(self.agent_action_relative)
-            self.agent_last_movement = self.agent_action
         else:
             self.agent_action = self.agent_action_relative
 
@@ -516,19 +545,20 @@ class Vacuum_Environment(ABC):
         dirty rooms in the environment.
         '''
 
-        if self.agent_action == "suck" and self.world[agent_position[0]][agent_position[1]] == 3:
-            self.world[agent_position[0]][agent_position[1]] = 1
+        if self.agent_action == "suck" and self.world[self.agent_position[0]][self.agent_position[1]] == 3:
+            self.world[self.agent_position[0]][self.agent_position[1]] = 1
             self.score += 1
         else:
             movement_vector = string_movement_to_vector.get(self.agent_action)
-            test_position = [agent_position[0] + movement_vector[0], agent_position[1] + movement_vector[1]]
-            self.agent_position = check_bounds(test_position, agent_position)
+            test_position = [self.agent_position[0] + movement_vector[0], self.agent_position[1] + movement_vector[1]]
+            self.agent_position = self.check_bounds(test_position, self.agent_position)
 
     def check_bounds(self, test_position, old_position):
         if self.world[test_position[0]][test_position[1]] == 3:
             self.bump = True
             return old_position
         else:
+            self.agent_last_movement = self.agent_action
             return test_position
 
     def update_agent_position(self, position):
@@ -564,21 +594,21 @@ class Model_Vacuum_Environment(Vacuum_Environment):
     pass
 
 
-    class Reflex_Vacuum_Environment(Vacuum_Environment):
-        """
-        A class representing a vacuum environment for the Reflex_Agent with nothing (0), clean (1), wall (2), dirty (3)
+class Reflex_Vacuum_Environment(Vacuum_Environment):
+    """
+    A class representing a vacuum environment for the Reflex_Agent with nothing (0), clean (1), wall (2), dirty (3)
 
-        ...
+    ...
 
-        Attributes
-        ----------
+    Attributes
+    ----------
 
 
-        Methods
-        -------
+    Methods
+    -------
 
-        """
-        pass
+    """
+    pass
 
 
 if __name__ == '__main__':
