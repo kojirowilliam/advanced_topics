@@ -222,7 +222,7 @@ class Simple_Agent(Agent):
 
         return self.action
 
-class Model_Based_Agent:
+class Model_Agent(Agent):
     '''
     A class that represents an Agent in the Environment.
     ...
@@ -243,12 +243,6 @@ class Model_Based_Agent:
     virtual_rules()
         runs the rules function recursively to find rules that apply to virtual worlds
     '''
-
-    def __init__(self):
-        self.world = [[0]]
-        self.agent_col = 0  # variable keeps track of agent's collumn (relative to starting location)
-        self.agent_row = 0  # keeps track of agent's row
-
     def agent_type(self):
         return "Model_Agent"
 
@@ -283,8 +277,8 @@ class Model_Based_Agent:
             a string representing the action the Agent wants to make in the environment.
         '''
 
-        dirt_percept = self.percepts[-1][-1]
-        bump_percept = self.percepts[-1][-2]
+        dirt_percept = self.percepts[-2]
+        bump_percept = self.percepts[-1]
         print("-     Agent's POV     -")
         print(f"Dirt Percept: {dirt_percept}")
         print(f"Bump Percept: {bump_percept}")
@@ -296,7 +290,7 @@ class Model_Based_Agent:
             self.performance += 1  # update your personal score
         else:
             # if we haven't tried to move yet, let's move right
-            self.virtual_ruleset(self.action, bump_percept, dirt_percept)
+            self.action = self.virtual_ruleset(self.action, bump_percept, dirt_percept)
 
         return self.action
 
@@ -332,7 +326,7 @@ class Model_Based_Agent:
             else:
                 proposed_action = "right"
 
-            print(self.action)
+            print(proposed_action)
 
         if proposed_action == "error":
             # we've tried everything and we're stuck, see if we just put ourself into a hole with virtual blocks
@@ -349,10 +343,10 @@ class Model_Based_Agent:
                 return proposed_action  # this won't hit a virtual block, time to see if it'll hit a real one
 
     def virtual_box_check(self):
-        return True
+        return False
 
     def virtual_bump_check(self, proposed_action):
-        return True
+        return False
 
     def prepmap(self, x, y):
         row = ['-'] * ((2 * x) - 1)
@@ -471,7 +465,7 @@ class Vacuum_Environment(ABC):
 
         assert yamada is not None, "Make sure that you have a variable name with your lastname as the configuration " \
                                    "of your world"
-        self.world = read_world(deer)
+        self.world = read_world(yamada)
 
     def create_dirt(self, number_of_dirt):
         '''
@@ -690,7 +684,7 @@ if __name__ == '__main__':
     vacuum_world = Normal_Vacuum_Environment()
     vacuum_world.create_world()
     print(f"Initial State: {vacuum_world}")
-    roomba = Reflex_Agent()
+    roomba = Model_Agent()
     while run:
         if steps == step_max:
             run = False
