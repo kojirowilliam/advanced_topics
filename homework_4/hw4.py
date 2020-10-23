@@ -415,8 +415,8 @@ class Vacuum_Environment(ABC):
         # TODO:KOJIRO world_config that contains the configuration of the world we want to use.
         # TODO:KOJIRO Replace the assert with logging.
 
-        from hw4_util import read_world
-        from yamada_world import yamada
+        from hw3.homework_4.hw4_util import read_world
+        from hw3.homework_4.yamada_world import yamada
 
         assert yamada is not None, "Make sure that you have a variable name with your lastname as the configuration " \
                                    "of your world"
