@@ -22,6 +22,10 @@
     <list default="true" id="5785ef80-fc15-457d-aa82-a6ef7f73a757" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/hw4.py" beforeDir="false" afterPath="$PROJECT_DIR$/hw4.py" afterDir="false" />
+<<<<<<< HEAD
+=======
+      <change beforePath="$PROJECT_DIR$/hw4_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/hw4_util.py" afterDir="false" />
+>>>>>>> origin/master
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,9 +68,15 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
+<<<<<<< HEAD
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
+=======
+      <option name="SDK_HOME" value="C:\Users\WDePue\PycharmProjects\doomsday\venv\Scripts\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+>>>>>>> origin/master
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/hw4.py" />
@@ -85,9 +95,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="C:\Users\WDePue\PycharmProjects\doomsday\venv\Scripts\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/hw4_util.py" />
@@ -156,6 +166,7 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="682" y="321" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1603134432380" />
+<<<<<<< HEAD
     <state width="1379" height="216" key="GridCell.Tab.0.bottom" timestamp="1603494142962">
       <screen x="0" y="23" width="1440" height="873" />
     </state>
@@ -176,6 +187,28 @@
     </state>
     <state width="1899" height="190" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1603242030194" />
     <state width="1379" height="216" key="GridCell.Tab.0.right/0.23.1440.873@0.23.1440.873" timestamp="1603494142961" />
+=======
+    <state width="1556" height="304" key="GridCell.Tab.0.bottom" timestamp="1603490220661">
+      <screen x="0" y="0" width="2560" height="1440" />
+    </state>
+    <state width="1899" height="190" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1603242030194" />
+    <state width="1556" height="304" key="GridCell.Tab.0.bottom/2560.116.1920.1080/0.0.2560.1440@0.0.2560.1440" timestamp="1603490220661" />
+    <state width="1556" height="304" key="GridCell.Tab.0.center" timestamp="1603490220661">
+      <screen x="0" y="0" width="2560" height="1440" />
+    </state>
+    <state width="1899" height="190" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1603242030194" />
+    <state width="1556" height="304" key="GridCell.Tab.0.center/2560.116.1920.1080/0.0.2560.1440@0.0.2560.1440" timestamp="1603490220661" />
+    <state width="1556" height="304" key="GridCell.Tab.0.left" timestamp="1603490220661">
+      <screen x="0" y="0" width="2560" height="1440" />
+    </state>
+    <state width="1899" height="190" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1603242030194" />
+    <state width="1556" height="304" key="GridCell.Tab.0.left/2560.116.1920.1080/0.0.2560.1440@0.0.2560.1440" timestamp="1603490220661" />
+    <state width="1556" height="304" key="GridCell.Tab.0.right" timestamp="1603490220661">
+      <screen x="0" y="0" width="2560" height="1440" />
+    </state>
+    <state width="1899" height="190" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1603242030194" />
+    <state width="1556" height="304" key="GridCell.Tab.0.right/2560.116.1920.1080/0.0.2560.1440@0.0.2560.1440" timestamp="1603490220661" />
+>>>>>>> origin/master
     <state x="777" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1603132862234">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
