@@ -259,93 +259,98 @@ class ModelAgent:
     def virtual_bump_check(self, proposed_action):
         return true
     
+    self.world=[[0]]
+    self.agent_col=0                                                               # variable keeps track of agent's collumn (relative to starting location)
+    self.agent_row=0                                                               # keeps track of agent's row
+    
     def mapping(self, agent_percepts):
         '''agent tries to construct a map of the world based on past experience'''
-        world=[[0]]
-        agent_col=0                                                               # variable keeps track of agent's collumn (relative to starting location)
-        agent_row=0                                                               # keeps track of agent's row
-        if self.action=="right":                                                  # agent moves right
-            if agent_percepts!= "bump":                                           # agent has not ran into a wall
-                agent_col+=1
-                if len(world[agent_row])>=agent_col:                              # checks if this area of the row has already been explored
-                    world[agent_row][agent_col]=1
-                if len(world[agent_row])<agent_col-1:                             # makes sure agent has only been moved by one square (I don't know what would cause a skip but I want to make sure we know if it happens)
+        if self.action=="right":                                                            # agent moves right
+            if agent_percepts!= "bump":                                                     # agent has not ran into a wall
+                self.agent_col+=1
+                if len(world[self.agent_row])>=self.agent_col:                              # checks if this area of the row has already been explored
+                    world[self.agent_row][self.agent_col]=1
+                if len(world[self.agent_row])<self.agent_col-1:                             # makes sure agent has only been moved by one square (I don't know what would cause a skip but I want to make sure we know if it happens)
                     AttributeError("Mapping error: agent has skipped a square")
-                else:                                                             # agent has not already mapped this square
-                    world[agent_row].insert(agent_col,1)                          # 1 is added at agent's new location
-            if agent_percepts=="bump":                                            # agent has ran into wall
-                if len(world[agent_row])==agent_col:                              # this is the first encounter with this square
-                    world[agent_row].append(2)
-                else:                                                             # this square has already been encountered
-                    world[agent_row][agent_col+1]=2
-        if self.action=="left":                                                   # agent moves left
-            if agent_percepts!= "bump":                                           # agent has not ran into wall
-                if agent_col>0:                                                   # checks if agent is on the left edge of its mapped area
-                    agent_col-=1
-                    world[agent_row][agent_col]=1                                 # if not, adds 1 at agent's new location
+                else:                                                                       # agent has not already mapped this square
+                    world[self.agent_row].insert(self.agent_col,1)                          # 1 is added at agent's new location
+            if agent_percepts=="bump":                                                      # agent has ran into wall
+                if len(world[self.agent_row])==self.agent_col:                              # this is the first encounter with this square
+                    world[self.agent_row].append(2)
+                else:                                                                       # this square has already been encountered
+                    world[self.agent_row][self.agent_col+1]=2
+        if self.action=="left":                                                             # agent moves left
+            if agent_percepts!= "bump":                                                     # agent has not ran into wall
+                if self.agent_col>0:                                                        # checks if agent is on the left edge of its mapped area
+                    self.agent_col-=1
+                    world[self.agent_row][self.agent_col]=1                                 # if not, adds 1 at agent's new location
                 else:
-                    world[agent_row].insert(agent_col,1)                          # if it is, adds 1 at the left edge of the mapped area
-            if agent_percepts=="bump":                                            # agent has hit a wall
-                if agent_col>0:
-                    world[agent_row][agent_col-1]=2
+                    world[self.agent_row].insert(self.agent_col,1)                          # if it is, adds 1 at the left edge of the mapped area
+            if agent_percepts=="bump":                                                      # agent has hit a wall
+                if self.agent_col>0:
+                    world[self.agent_row][self.agent_col-1]=2
                 else:
-                    world.insert(agent_col,2)
-        if self.action=="up":                                                     # agent moves up
-            if agent_percepts!= "bump":                                           # agent has not hit a wall
-                if agent_row==0:                                                  # checks if agent is at the top of the mapped area
-                    templist=[-]*(agent_col-((agent_col>0)*1))                    # makes a list of filler items to make sure that collumns are aligned, only subtracts 1 if the column number isn't 0
-                    world.insert(0,templist)                                      # adds filler list to the row above agent
-                    world[0].append(1)                                            # adds a 1 at the agent's new position
+                    world.insert(self.agent_col,2)
+        if self.action=="up":                                                               # agent moves up
+            if agent_percepts!= "bump":                                                     # agent has not hit a wall
+                if self.agent_row==0:                                                       # checks if agent is at the top of the mapped area
+                    templist=[-]*(self.agent_col-((self.agent_col>0)*1))                    # makes a list of filler items to make sure that collumns are aligned, only subtracts 1 if the column number isn't 0
+                    world.insert(0,templist)                                                # adds filler list to the row above agent
+                    world[0].append(1)                                                      # adds a 1 at the agent's new position
                 else:
-                    agent_row-=1
-                    if len(world[agent_row])>len(world[agent_row+1]):             # checks if new row has more filled in slots than old row (has it been explored more)
-                        world[agent_row][agent_col]=1                             # makes sure agent's new position is marked as empty
+                    self.agent_row-=1
+                    if len(world[self.agent_row])>len(world[self.agent_row+1]):             # checks if new row has more filled in slots than old row (has it been explored more)
+                        world[self.agent_row][self.agent_col]=1                             # makes sure agent's new position is marked as empty
                     else:
-                        row_dif=(len(world[agent_row+1]-len(world[agent_row])))-1 # prepares filler list to make up for difference in row lengths (due to difference in exploration)
-                        templist=[-]*row_dif                                      # filler list
-                        world[agent_row].extend(templist)                         # inserts filler list to agent's new row
-                        world[agent_row].insert(agent_col,1)                      # adds 1 at agent's new position
-            if agent_percepts=="bump":                                            # agent has encountered a wall
-                if agent_row==0:
-                    templist=[-]*(agent_col-((agent_col>0)*1))                    # makes a list of filler items to make sure that collumns are aligned, only subtracts 1 if the column number isn't 0
-                    world.insert(0,templist)                                      # adds filler list to the row above agent
-                    world[0].append(2)                                            # marks correct position as wall
+                        row_dif=(len(world[self.agent_row+1]-len(world[self.agent_row])))-1 # prepares filler list to make up for difference in row lengths (due to difference in exploration)
+                        templist=[-]*row_dif                                                # filler list
+                        world[self.agent_row].extend(templist)                              # inserts filler list to agent's new row
+                        world[self.agent_row].insert(self.agent_col,1)                      # adds 1 at agent's new position
+            if agent_percepts=="bump":                                                      # agent has encountered a wall
+                if self.agent_row==0:
+                    templist=[-]*(self.agent_col-((self.agent_col>0)*1))                    # makes a list of filler items to make sure that collumns are aligned, only subtracts 1 if the column number isn't 0
+                    world.insert(0,templist)                                                # adds filler list to the row above agent
+                    world[0].append(2)                                                      # marks correct position as wall
                 else:
-                    if len(world[agent_row-1])>len(world[agent_row]):             # checks if new row has more filled in slots than old row (has it been explored more)
-                        world[agent_row-1][agent_col]=2                           # makes sure agent's new position is marked as empty
+                    if len(world[self.agent_row-1])>len(world[self.agent_row]):             # checks if new row has more filled in slots than old row (has it been explored more)
+                        world[self.agent_row-1][self.agent_col]=2                           # makes sure agent's new position is marked as empty
                     else:
-                        row_dif=(len(world[agent_row]-len(world[agent_row-1])))-1 # prepares filler list to make up for difference in row lengths (due to difference in exploration)
-                        templist=[-]*row_dif                                      # filler list
-                        world[agent_row].extend(templist)                         # inserts filler list to agent's new row
-                        world[agent_row].insert(agent_col,2)
+                        row_dif=(len(world[self.agent_row]-len(world[self.agent_row-1])))-1 # prepares filler list to make up for difference in row lengths (due to difference in exploration)
+                        templist=[-]*row_dif                                                # filler list
+                        world[self.agent_row].extend(templist)                              # inserts filler list to agent's new row
+                        world[self.agent_row].insert(self.agent_col,2)
         if self.action=="down":
             if agent_percepts!="bump":
-                agent_row+=1
-                if world[agent_row-1]==world[-1]:                                 # checks if previous row was the bottom row
-                    templist=[-]*(agent_col-((agent_col>0)*1))
+                self.agent_row+=1
+                if world[self.agent_row-1]==world[-1]:                                      # checks if previous row was the bottom row
+                    templist=[-]*(self.agent_col-((self.agent_col>0)*1))
                     world.append(templist)
-                    world[agent_row].insert(agent_col,1)
+                    world[self.agent_row].insert(self.agent_col,1)
                 else:
-                    if len(world[agent_row])>len(world[agent_row-1]):             # checks if new row has been filled in more than old row
-                        world[agent_row].insert(agent_col,1)                      # makes sure agent's position is marked as empty
+                    if len(world[self.agent_row])>len(world[self.agent_row-1]):             # checks if new row has been filled in more than old row
+                        world[self.agent_row].insert(self.agent_col,1)                      # makes sure agent's position is marked as empty
                     else:
-                        row_dif=len(world[agent_row])-len(world[agent_row-1])-1   # prepares filler list to make up for difference in row lengths
-                        templist=[-]*row_dif                                      # filler list
-                        world[agent_row].extend(templist)                         # insterts filler list into agent's new row
-                        world[agent_row].insert(agent_col,1)                      # adds 1 at agent's current location
+                        row_dif=len(world[self.agent_row])-len(world[self.agent_row-1])-1   # prepares filler list to make up for difference in row lengths
+                        templist=[-]*row_dif                                                # filler list
+                        world[self.agent_row].extend(templist)                              # insterts filler list into agent's new row
+                        world[self.agent_row].insert(self.agent_col,1)                      # adds 1 at agent's current location
             if agent_percepts=="bump":
-                if world[agent_row]==world[-1]:                                   # checks if previous row was the bottom row
-                    templist=[-]*(agent_col-((agent_col>0)*1))
+                if world[self.agent_row]==world[-1]:                                        # checks if previous row was the bottom row
+                    templist=[-]*(self.agent_col-((self.agent_col>0)*1))
                     world.append(templist)
-                    world[agent_row].insert(agent_col,2)
+                    world[self.agent_row].insert(self.agent_col,2)
                 else:
-                    if len(world[agent_row+1])>len(world[agent_row]):             # checks if new row has been filled in more than old row
-                        world[agent_row][agent_col]=2                             # makes sure agent's position is marked as empty
+                    if len(world[self.agent_row+1])>len(world[self.agent_row]):             # checks if new row has been filled in more than old row
+                        world[self.agent_row][self.agent_col]=2                             # makes sure agent's position is marked as empty
                     else:
-                        row_dif=len(world[agent_row+1])-len(world[agent_row])-1   # prepares filler list to make up for difference in row lengths
-                        templist=[-]*row_dif                                      # filler list
-                        world[agent_row].extend(templist)                         # insterts filler list into agent's new row
-                        world[agent_row].insert(agent_col,1)                      # adds 1 at agent's current location
+                        row_dif=len(world[self.agent_row+1])-len(world[self.agent_row])-1   # prepares filler list to make up for difference in row lengths
+                        templist=[-]*row_dif                                                # filler list
+                        world[self.agent_row].extend(templist)                              # insterts filler list into agent's new row
+                        world[self.agent_row].insert(self.agent_col,1)                      # adds 1 at agent's current location
+                        
+                        
+    def get_pos_value(x,y):                                                                 # returns the value of a position on the map
+        return self.world[x][y]
 
 class Vacuum_Environment:
     """
