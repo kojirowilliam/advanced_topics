@@ -407,7 +407,7 @@ class Vacuum_Environment(ABC):
         self.score = 0
         self.agent_percepts = []
         self.agent_percepts_buffer = []
-        self.agent_position = [0,0]
+        self.agent_position = [3, 4]
         self.bump = False
 
     def create_world(self):
@@ -482,7 +482,7 @@ class Vacuum_Environment(ABC):
         agent : Object of Agent class
         '''
 
-        if self.world[self.agent_position[0]][self.agent_position[1]] == 3:
+        if self.world[self.agent_position[0]][self.agent_position[1]] == "DIRTY":
             self.agent_percepts_buffer.append("clean")
         else:
             self.agent_percepts_buffer.append("dirty")
@@ -509,17 +509,22 @@ class Vacuum_Environment(ABC):
         dirty rooms in the environment.
         '''
 
-        print("Change Enviornment")
+        print("-     Change Enviornment      -")
         print(f"Action: {self.agent_action}")
-        print(f"Action: {self.agent_action}")
+        print(f"Agent Is In: {self.world[self.agent_position[0]][self.agent_position[1]]}")
 
-        if self.agent_action == "suck" and self.world[self.agent_position[0]][self.agent_position[1]] == 3:
-            self.world[self.agent_position[0]][self.agent_position[1]] = 1
-            self.score += 1
+        if self.agent_action == "suck":
+            if self.world[self.agent_position[0]][self.agent_position[1]] == "DIRTY":
+                self.world[self.agent_position[0]][self.agent_position[1]] = 1
+                self.score += 1
+            else:
+                print("Tried to suck in clean")
+                error("TRIED TO SUCK IN CLEAN")
         else:
             # print(self.agent_action)
             movement_vector = string_movement_to_vector.get(self.agent_action)
-            # print(movement_vector)
+            print(f"Movement_vector: {movement_vector}")
+            print(f"Agent_position: {self.agent_position}")
             test_position = [self.agent_position[0] + movement_vector[0], self.agent_position[1] + movement_vector[1]]
             self.update_agent_position(self.check_bounds(test_position, self.agent_position))
 
@@ -559,8 +564,9 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
             self.agent_action = self.agent_action_relative
 
     def check_bounds(self, test_position, old_position):
+        print(f"Test Position: {test_position}")
         if 0 <= test_position[0] < 6 and 0 <= test_position[1] < 7:
-            if self.world[test_position[0]][test_position[1]] != 3:
+            if self.world[test_position[0]][test_position[1]] != "WALL" and self.world[test_position[0]][test_position[1]] != "OUT":
                 self.agent_last_movement = self.agent_action
                 return test_position
             else:
@@ -638,6 +644,7 @@ if __name__ == '__main__':
         vacuum_world.agent_percept(roomba)
         vacuum_world.agent_update(roomba)
         vacuum_world.change_environment()
+        print("-    Other Debug Info     -")
         print(f"World State: {vacuum_world}")
         print(f"Agent Percept: {roomba.percepts}")
         print(f"Action: {roomba.action}")
