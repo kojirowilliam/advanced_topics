@@ -312,7 +312,7 @@ class Model_Based_Agent:
     def virtual_bump_check(proposed_action):
         return True
 
-    def prepmap(x, y):
+    def prepmap(self, x, y):
         row = ['-'] * ((2 * x) - 1)
         self.world = [row] * ((2 * y) - 1)
         self.agent_col = x - 1
@@ -346,8 +346,47 @@ class Model_Based_Agent:
             if agent_percepts == "bump":  # agent has encountered wall
                 self.world[self.agent_row + 1][self.agent_col] = 2  # square directly below agent marked as wall
 
-    def get_pos_value(x, y):  # returns the value of a position on the map
+    def get_pos_value(self, x, y):  # returns the value of a position on the map
         return self.world[x][y]
+
+    def has_visited(self, x, y):
+        '''
+        Checks if the agent has previously visited a given square
+        Parameters
+        ----------
+        x=row
+        y=col
+
+        Returns
+        -------
+        True/False
+        '''
+        if self.world[x][y]!='-':
+            return True
+        else:
+            return False
+
+    self.antiloop=[]
+
+    def loop_tracker(self):
+        '''
+        Function checks if the agent is stuck in a loop by recording the squares it has visited
+        Returns
+        -------
+        True/False
+        '''
+        coords=self.agent_row,self.agent_col
+        if self.has_visited(coords):
+            if self.antiloop.count([coords])>=3:                                                      # The method for checking loops only works if the agent has been to a square three times
+                loop_spots=[i for i in range(len(self.antiloop)) if self.antiloop[i]==[coords]][:2]   # Creates list of indexes of all occurences of the current coordinates in the list of previously visited squares
+                if self.antiloop[loop_spots[0]+1]==self.antiloop[loop_spots[1]+1]:                    # Checks if the move after repeated square was the same for each visit, meaning agent is probably in a loop
+                    self.antiloop=[]
+                    return True
+                else:
+                    return False
+        else:
+            self.antiloop.append([coords])
+
 
 class Vacuum_Environment(ABC):
     """
