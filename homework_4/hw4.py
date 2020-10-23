@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from random import randint
 import logging
 
-def setup_logging(level=logging.DEBUG):
-    logging.basicConfig(level=level, format='%(asctime)s{%(levelname)s} %(message)s', datefmt='%H:%M:%S')
+def setup_logging(level):
+    logging.basicConfig(level=0, format='%(asctime)s{%(levelname)s} %(message)s', datefmt='%H:%M:%S')
 
 # shorthand convenience methods for using logger
 global debug, warn, info, error, crash
@@ -28,11 +28,11 @@ movement_decrypt = {
 
 # this converts cardinal movements to vectors
 string_movement_to_vector = {
-    "right": [0,1],
-    "left": [0,-1],
-    "up": [-1,0],
-    "down": [1,0],
-    "suck": [-99,-99] # should throw error
+    "right": [0, 1],
+    "left": [0, -1],
+    "up": [-1, 0],
+    "down": [1, 0],
+    "suck": [-99, -99]  # should throw error
 }
 
 class Agent(ABC):
@@ -394,12 +394,13 @@ class Vacuum_Environment(ABC):
         self.world = []
         self.agent_action = ""
         self.agent_last_movement = "right"
-        self.agent_action_relative = ""
+        self.agent_action_relative = "right"
         self.environment_won = False
         self.score = 0
         self.agent_percepts = []
         self.agent_percepts_buffer = []
         self.agent_position = [0,0]
+        self.bump = False
 
     def create_world(self):
         '''
@@ -452,14 +453,12 @@ class Vacuum_Environment(ABC):
                         else:
                             clean_room_count += 1
 
-
     def do_kids_create_dirt(self):
         '''
         Randomly creates dirt in a clean room according to the 10% kids creating dirt chance.
         '''
         if randint(0,10) == 5:
             self.create_dirt(1)
-
 
     def agent_percept(self, agent):
         self.agent_dirt_sensor(agent)
@@ -506,9 +505,11 @@ class Vacuum_Environment(ABC):
             self.world[self.agent_position[0]][self.agent_position[1]] = 1
             self.score += 1
         else:
+            print(self.agent_action)
             movement_vector = string_movement_to_vector.get(self.agent_action)
+            print(movement_vector)
             test_position = [self.agent_position[0] + movement_vector[0], self.agent_position[1] + movement_vector[1]]
-            self.agent_position = self.check_bounds(test_position, self.agent_position)
+            self.update_agent_position(self.check_bounds(test_position, self.agent_position))
 
     def update_agent_position(self, position):
         self.agent_position = position
@@ -522,7 +523,7 @@ class Vacuum_Environment(ABC):
         list
             an str list with four states: ["OUT", "CLEAN", "WALL","DIRTY"].
         '''
-        return self.world
+        return "Represent is currently broken"
 
 class Normal_Vacuum_Environment(Vacuum_Environment):
     """
@@ -541,13 +542,14 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
     def agent_update(self, agent):
         self.agent_action_relative = agent.rules()
         if self.agent_action_relative != "suck":
-            self.agent_action = movement_decrypt.get(self.agent_last_movement).get(self.agent_action_relative)
+            self.agent_action = movement_decrypt[self.agent_last_movement][self.agent_action_relative]
         else:
             self.agent_action = self.agent_action_relative
 
     def check_bounds(self, test_position, old_position):
         if self.world[test_position[0]][test_position[1]] == 3:
             self.bump = True
+            warn("Bump")
             return old_position
         else:
             self.agent_last_movement = self.agent_action
@@ -605,14 +607,14 @@ if __name__ == '__main__':
     step_max = 1000
     steps = 0
     run = True
-    vacuum_world = Vacuum_Environment()
+    vacuum_world = Normal_Vacuum_Environment()
     vacuum_world.create_world()
-    vacuum_world.create_dirt()
     print(f"Initial State: {vacuum_world}")
-    roomba = Agent()
+    roomba = Reflex_Agent()
     while run:
         if steps == step_max:
             run = False
+        print("-------------------------")
         print(f"Step # {steps}")
         vacuum_world.agent_percept(roomba)
         vacuum_world.agent_update(roomba)
@@ -620,6 +622,7 @@ if __name__ == '__main__':
         print(f"World State: {vacuum_world}")
         print(f"Agent Percept: {roomba.percepts}")
         print(f"Action: {roomba.action}")
+        print(f"Action World: {vacuum_world.agent_last_movement}")
         print(f"Latest Performance: {roomba.performance}")
         steps += 1
 
