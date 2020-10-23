@@ -21,7 +21,8 @@ crash = logging.critical
 setup_logging(logging.WARNING)
 
 # the first definition is the last cardinal direction that the agent moved, this is where the agent is "facing"
-# the second dictionary defines what this means for the relative actions of the agent, for example, if you're facing down and take a right, that's going left in world directions
+# the second dictionary defines what this means for the relative actions of the agent,
+# for example, if you're facing down and take a right, that's going left in world directions
 movement_decrypt = {
     "right": {"right": "down", "left": "up", "forward": "right", "back": "left"},
     "left": {"right": "up", "left": "down", "forward": "left", "back": "right"},
@@ -68,9 +69,7 @@ class Agent(ABC):
         self.percepts = percepts
         self.performance = 0
         self.action = "right"
-        self.world = [[0]]
-        self.agent_col = 0  # variable keeps track of agent's collumn (relative to starting location)
-        self.agent_row = 0  # keeps track of agent's row
+
 
     def set_percepts(self, agent_percepts):
         '''
@@ -160,7 +159,8 @@ class Reflex_Agent(Agent):
                 print(self.action)
             else:  # we haven't bumped into anything, so try to move right
                 print("Not Bumped - NORMAL ACTION")
-                if randint(0, 100) < 5: # random case to help us get to harder-to-reach areas
+                if randint(0, 100) < 5 : # random case to help us get to harder-to-reach areas
+                    # self.action = "right"
                     self.action = reverse_dict.get(self.action) # turn around and try to attach to a inside/outside wall
                 else:
                     self.action = "right"
@@ -244,6 +244,11 @@ class Model_Based_Agent:
         runs the rules function recursively to find rules that apply to virtual worlds
     '''
 
+    def __init__(self):
+        self.world = [[0]]
+        self.agent_col = 0  # variable keeps track of agent's collumn (relative to starting location)
+        self.agent_row = 0  # keeps track of agent's row
+
     def agent_type(self):
         return "Model_Agent"
 
@@ -256,14 +261,22 @@ class Model_Based_Agent:
         Right -> Forward -> Left -> Back
         But this agent is MUCH SMARTER than the last one because we now can maintain state of the world.
         What we're doing now is trying to spiral around the world until we reach the inside.
-        In order to spiral inwwards, we need to pretend like there's blocks in certain spaces : "Virtual Walls"
-        These Virtual Walls should impede our movement, but they don't exist in the enviornment, the enviornment has no idea about them
-        What we're doing here is doing our normal movement code, then checking if that movement will cause a bump into our Virtual Walls.
-        If that movement will make us go into a virtual wall, we send it back to regenerate, making the rules think we just bumped into something and it's the next step, but it isn't
+        In order to spiral inwards, we need to pretend like there's blocks in certain spaces : "Virtual Walls"
+        These Virtual Walls should impede our movement, but they don't exist in the environment, the enviornment has no
+        idea about them
+
+        What we're doing here is doing our normal movement code, then checking if that movement will cause a bump into
+        our Virtual Walls.
+
+        If that movement will make us go into a virtual wall, we send it back to regenerate, making the rules think we
+        just bumped into something and it's the next step, but it isn't
         This creates the recursive nature of our virtual code.
         Remember, these are relative movements, the roomba doesn't know which way is up or down.
-        The enviornment knows which way the Roomba is pointing however. The way the roomba is pointing and it's action is decryrpted by the enviornment.
-        This allows us to stick to the right, even when we're facing left, down, up, or right. We always move to the relative right.
+        The enviornment knows which way the Roomba is pointing however. The way the roomba is pointing and it's action
+        is decryrpted by the enviornment.
+
+        This allows us to stick to the right, even when we're facing left, down, up, or right. We always move to the
+        relative right.
         Returns
         -------
         action : str
@@ -272,17 +285,22 @@ class Model_Based_Agent:
 
         dirt_percept = self.percepts[-1][-1]
         bump_percept = self.percepts[-1][-2]
+        print("-     Agent's POV     -")
+        print(f"Dirt Percept: {dirt_percept}")
+        print(f"Bump Percept: {bump_percept}")
+        print(f"Last Action: {self.action}")
 
-        if dirt_percept == "dirty":  # duh
-            self.action = "suck"
-            self.performance += 1
+        if dirt_percept == "dirty":  # if dirty
+            print("IM SUCKING SUCKING SUCKING SUCKING ")
+            self.action = "suck"  # suck
+            self.performance += 1  # update your personal score
         else:
             # if we haven't tried to move yet, let's move right
-            self.virtual_ruleset(self, self.action, bump_percept)
+            self.virtual_ruleset(self.action, bump_percept, dirt_percept)
 
         return self.action
 
-    def virtual_ruleset(self, prev_action, bump_percept):
+    def virtual_ruleset(self, prev_action, bump_percept, dirt_percept):
         rules_dict = {
             # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is
             # looking, not cardinal environment directions
@@ -292,38 +310,56 @@ class Model_Based_Agent:
             "back": "error"
         }
 
-        if bump_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
-            proposed_action = rules_dict.get(prev_action)
-        else:
-            proposed_action = "right"
+        reverse_dict = {
+            # this makes the roomba turn around
+            # turning around means the roomba's old left is not its right
+            # meaning it will try to stick to a wall that's across from it
+            "right": "left",
+            "forward": "back",
+            "left": "right",
+            "back": "forward",
+            "suck": "right"
+        }
+
+        if bump_percept == "bump":  # okay, we tried to move and we hit something,
+            proposed_action = str(rules_dict.get(self.action))  # take our last action and use it to find a new one
+            print("We Bumped - DICTIONARY ACTION")
+            print(proposed_action)
+        else:  # we haven't bumped into anything, so try to move right
+            print("Not Bumped - NORMAL ACTION")
+            if randint(0, 100) < 5:  # TODO: we should call this if we've been circling the same point multiple times
+                proposed_action = reverse_dict.get(prev_action)  # turn around, try to attach to a inside/outside wall
+            else:
+                proposed_action = "right"
+
+            print(self.action)
 
         if proposed_action == "error":
-            # we've tried everything and we're stuck, make sure we didn't just put ourself into a hole with virtual blocks
+            # we've tried everything and we're stuck, see if we just put ourself into a hole with virtual blocks
             if self.virtual_box_check():  # oh wait looks like we locked ourself in, let's delete those blocks
-                # delete virtual blocks
-                # continue and attach
+                # TODO delete virtual blocks
+                # TODO continue and attach
                 self.virtual_ruleset("right", "no bump")
-                return
             else:  # holdup that wasn't us, the map creator messed up, time to raise an error
                 raise AttributeError("Roomba is stuck in a hole")
         else:
-            if self.virtual_bump_check(proposed_action):  # let's run virtual bump check to see if that's a virtual block
+            if self.virtual_bump_check(proposed_action):  # let's run virtual check to see if that's a virtual block
                 self.virtual_ruleset(proposed_action, "bump")  # if it is, regenerate the rules and dupe it into thinking it bumped into a real block and it didn't work
             else:
-                self.action = proposed_action  # this won't hit a virtual block, time to see if it'll hit a real one
+                return proposed_action  # this won't hit a virtual block, time to see if it'll hit a real one
 
     def virtual_box_check(self):
         return True
 
-    def virtual_bump_check(proposed_action):
+    def virtual_bump_check(self, proposed_action):
         return True
 
-    def prepmap(x, y):
+    def prepmap(self, x, y):
         row = ['-'] * ((2 * x) - 1)
         self.world = [row] * ((2 * y) - 1)
         self.agent_col = x - 1
         self.agent_row = y - 1
-        return (self.world)
+        return self.world
 
     def mapping(self, agent_percepts):
         '''agent tries to construct a map of the world based on past experience'''
@@ -352,7 +388,7 @@ class Model_Based_Agent:
             if agent_percepts == "bump":  # agent has encountered wall
                 self.world[self.agent_row + 1][self.agent_col] = 2  # square directly below agent marked as wall
 
-    def get_pos_value(x, y):  # returns the value of a position on the map
+    def get_pos_value(self, x, y):  # returns the value of a position on the map
         return self.world[x][y]
 
 class Vacuum_Environment(ABC):
