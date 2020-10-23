@@ -138,20 +138,28 @@ class Reflex_Agent(Agent):
             "back": "forward"
         }
 
-        dirt_percept = self.percepts[-1][-1]
-        bump_percept = self.percepts[-1][-2]
+        dirt_percept = self.percepts[-2]
+        bump_percept = self.percepts[-1]
+        print(f"Dirt Percept: {dirt_percept}")
+        print(f"Bump Percept: {bump_percept}")
 
         if dirt_percept == "dirty":  # if dirty
+            print("SUCKING SUCKING SUCKING SUCKING ")
             self.action = "suck" # suck
             self.performance += 1 # update your personal score
         else:
             if bump_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
                 self.action = rules_dict.get(self.action)
+                print("BUMP - DICTIONARY ACTION")
+                print(self.action)
             else: # we haven't bumped into anything, so try to move right
+                print("NO BUMP - NORMAL ACTION")
                 if randint(0, 100) < 5: # random case to help us get to harder-to-reach areas
                     self.action = reverse_dict.get(self.action) # turn around and try to attach to a inside/outside wall
                 else:
                     self.action = "right"
+
+                print(self.action)
 
             if self.action == "error":  # we've tried to move everywhere and nothing worked, throw error
                 raise AttributeError("Roomba is stuck in a hole, no possible movements")
@@ -501,13 +509,17 @@ class Vacuum_Environment(ABC):
         dirty rooms in the environment.
         '''
 
+        print("Change Enviornment")
+        print(f"Action: {self.agent_action}")
+        print(f"Action: {self.agent_action}")
+
         if self.agent_action == "suck" and self.world[self.agent_position[0]][self.agent_position[1]] == 3:
             self.world[self.agent_position[0]][self.agent_position[1]] = 1
             self.score += 1
         else:
-            print(self.agent_action)
+            # print(self.agent_action)
             movement_vector = string_movement_to_vector.get(self.agent_action)
-            print(movement_vector)
+            # print(movement_vector)
             test_position = [self.agent_position[0] + movement_vector[0], self.agent_position[1] + movement_vector[1]]
             self.update_agent_position(self.check_bounds(test_position, self.agent_position))
 
@@ -547,13 +559,20 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
             self.agent_action = self.agent_action_relative
 
     def check_bounds(self, test_position, old_position):
-        if self.world[test_position[0]][test_position[1]] == 3:
-            self.bump = True
-            warn("Bump")
-            return old_position
+        if 0 <= test_position[0] < 6 and 0 <= test_position[1] < 7:
+            if self.world[test_position[0]][test_position[1]] != 3:
+                self.agent_last_movement = self.agent_action
+                return test_position
+            else:
+                print("XXX --- Bumped into a wall --- XXX")
+                self.bump = True
+                # info("Bump Wall")
+                return old_position
         else:
-            self.agent_last_movement = self.agent_action
-            return test_position
+            print("XXX --- Out of Bounds --- XXX")
+            self.bump = True
+            # warn("Bump Out of Bounds")
+            return old_position
 
 class Simple_Vacuum_Environment(Vacuum_Environment):
     """
@@ -589,7 +608,7 @@ if __name__ == '__main__':
     The main loop of the program.
     Variables
     ----------
-    total_score : int
+    total_score : into
         The number of times the agent has completed the environment (has cleaned the dirty room).
     steps_max : int
         The number of steps the environment will take to complete the program.
@@ -604,7 +623,7 @@ if __name__ == '__main__':
     '''
 
     total_score = 0
-    step_max = 1000
+    step_max = 200
     steps = 0
     run = True
     vacuum_world = Normal_Vacuum_Environment()
@@ -622,7 +641,8 @@ if __name__ == '__main__':
         print(f"World State: {vacuum_world}")
         print(f"Agent Percept: {roomba.percepts}")
         print(f"Action: {roomba.action}")
-        print(f"Action World: {vacuum_world.agent_last_movement}")
+        print(f"Last Passed Action: {vacuum_world.agent_last_movement}")
+        print(f"Agent Position: {vacuum_world.agent_position}")
         print(f"Latest Performance: {roomba.performance}")
         steps += 1
 
