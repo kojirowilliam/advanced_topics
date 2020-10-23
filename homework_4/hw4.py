@@ -431,11 +431,11 @@ class Vacuum_Environment(ABC):
         # TODO:KOJIRO Replace the assert with logging.
 
         from hw3.homework_4.hw4_util import read_world
-        from hw3.homework_4.yamada_world import yamada
+        from hw3.homework_4.yamada_world import yamada, deer, catalan, churchland, meister, depue
 
         assert yamada is not None, "Make sure that you have a variable name with your lastname as the configuration " \
                                    "of your world"
-        self.world = read_world(yamada)
+        self.world = read_world(deer)
 
     def create_dirt(self, number_of_dirt):
         '''
