@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 from random import randint
 import logging
 
-from hw3.homework_4.hw4_util import Tile
-
+from hw4_util import Tile
 
 def setup_logging(level):
     logging.basicConfig(level=0, format='%(asctime)s{%(levelname)s} %(message)s', datefmt='%H:%M:%S')
@@ -86,9 +85,9 @@ class Agent(ABC):
     def rules(self):
         pass
 
-class Reflex_Agent(Agent):
+class Toyota_Corolla_Agent(Agent):
     '''
-    A class that represents a Reflex Agent in the Environment.
+    A class that represents our first Reflex Agent in the Environment.
     ...
     Attributes
     ----------
@@ -174,7 +173,8 @@ class Reflex_Agent(Agent):
 
 class Simple_Agent(Agent):
     '''
-    A class that represents a Reflex Agent in the Environment.
+    A class that represents our second Reflex Agent in the Environment.
+    We were scared that our first reflex agent was using too much information (even
     ...
     Attributes
     ----------
@@ -460,8 +460,8 @@ class Vacuum_Environment(ABC):
         # TODO:KOJIRO world_config that contains the configuration of the world we want to use.
         # TODO:KOJIRO Replace the assert with logging.
 
-        from hw3.homework_4.hw4_util import read_world
-        from hw3.homework_4.yamada_world import yamada, deer, catalan, churchland, meister, depue
+        from hw4_util import read_world
+        from yamada_world import yamada, deer, catalan, churchland, meister, depue
 
         assert yamada is not None, "Make sure that you have a variable name with your lastname as the configuration " \
                                    "of your world"

@@ -95,7 +95,7 @@ def read_world(world_definition, rows=6, cols=7):
 
 
 if __name__ == '__main__':
-    from hw3.homework_4.yamada_world import yamada
+    from yamada_world import yamada
 
     world = read_world(yamada)
 
