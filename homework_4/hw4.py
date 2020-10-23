@@ -385,6 +385,35 @@ class Model_Agent(Agent):
     def get_pos_value(self, x, y):  # returns the value of a position on the map
         return self.world[x][y]
 
+    def has_visited(self, x, y):    # checks if agent has already visited a portion of the map
+        if self.world[x][y]!='-':
+            return True
+        else:
+            return False
+
+    self.antiloop=[]                                                                                                    # list to be used to monitor whether the agent is stuck in a loop
+
+    def loop_tracker(self):
+        '''
+        Watches for possible loops the agent could be stuck in
+        Returns
+        -------
+        True/False
+        '''
+    coords=self.agent_row,self.agent_col                                                                                # coordinates of agent
+        if self.has_visited(coords):
+            if self.antiloop.count([coords])>=3:                                                                        # method of tracking loops only works if agent has visited a square at least 3 times
+                loop_spots=[i for i in range(len(self.antiloop)) if self.antiloop[i]==[coords]][:2]                     # makes list of indexes of every time the agent has previously been in its current square (only takes the first 2 as only 2 are needed)
+                if self.antiloop[loop_spots[0]+1]==self.antiloop[loop_spots[1]+1]:                                      # if the move directly after each of the previous visits is the same then the agent might be stuck in a loop
+                    self.antiloop=[]                                                                                    # list keeping track of previous positions is wiped so the previous if/else statements don't keep checking the same occurences
+                    return True
+                else:
+                    self.antiloop=[]                                                                                    # list keeping track is wiped for the same reason
+                    self.antiloop.append([coords])                                                                      # current coordinates are appended
+                    return False
+            else:
+            self.antiloop.append([coords])                                                                              # if agent has not visited a given square at least 3 times its current position is added to list
+
 class Vacuum_Environment(ABC):
     """
     An abstract class representing a room with nothing (0), clean (1), wall (2), dirty (3)
