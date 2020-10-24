@@ -5,7 +5,7 @@ import logging
 from hw4_util import Tile
 
 from hw4_util import read_world
-from yamada_world import yamada # , deer, catalan, churchland, meister, depue, liu, sarkissian, suddath
+from yamada_world import yamada , deer, catalan, churchland, meister, depue, liu, sarkissian, suddath
 
 def setup_logging(level):
     logging.basicConfig(level=0, format='%(asctime)s{%(levelname)s} %(message)s', datefmt='%H:%M:%S')
@@ -229,13 +229,18 @@ class Simple_Agent(Agent):
             a string representing the action the Agent wants to make in the environment.
         '''
 
-        dirt_percept = self.percepts[-1][-1]
-        bump_percept = self.percepts[-1][-2]
+        dirt_percept = self.percepts[-2]
+        bump_percept = self.percepts[-1]
+        print("-     Agent's POV     -")
+        print(f"Dirt Percept: {dirt_percept}")
+        print(f"Bump Percept: {bump_percept}")
+        print(f"Last Action: {self.action}")
 
-        if dirt_percept == "dirty":  # duh
-            self.action = "suck"
-            self.performance += 1
-        else:  # if we haven't tried to move yet, let's move right
+        if dirt_percept == "dirty":  # if dirty
+            print("IM SUCKING SUCKING SUCKING SUCKING ")
+            self.action = "suck"  # suck
+            self.performance += 1  # update your personal score
+        else:
             if bump_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
                 if randint(0, 100) < 5:
                     self.action = "right"
@@ -827,7 +832,6 @@ class Simple_Vacuum_Environment(Vacuum_Environment):
     def agent_update(self, agent):
         '''
         Updates the agent and interprets the agent movement.
-        This enviornment has one key difference, we ALWAYS make agent heading to last action regardless of success
         For info on why we're using relative positioning and directions here, see wiki or agent descriptions.
 
         ----------
@@ -836,15 +840,19 @@ class Simple_Vacuum_Environment(Vacuum_Environment):
         ----------
         Variables
             agent_action_relative : Agent's most recent passed back rules
-            agent_last_movement : Agent's most recent action - UNLIKE THE NORMAL ENVIORNMENT
+            agent_last_movement : Agent's most recent successful action (action which didn't result in bump)
             agent_action : Resultant Decrypted Action
         '''
         self.agent_action_relative = agent.rules()
         if self.agent_action_relative != "suck":
-            self.agent_action = movement_decrypt.get(self.agent_last_movement).get(self.agent_action_relative)
+            print("_____ Interpreting Agent Action _____")
+            print(f"Relative Action: {self.agent_action_relative}")
+            print(f"Interpreted Bearing Action: {self.agent_last_movement}")
+            self.agent_action = str(movement_decrypt[self.agent_last_movement][self.agent_action_relative])
             self.agent_last_movement = self.agent_action
         else:
             self.agent_action = self.agent_action_relative
+        print(f"Resultant Action: {self.agent_action}")
 
     def check_bounds(self, test_position, old_position):
         '''
@@ -862,11 +870,20 @@ class Simple_Vacuum_Environment(Vacuum_Environment):
             position : [y coordinate, x coordinate]
         '''
 
-        if self.world[test_position[0]][test_position[1]] == 3:
+        print(f"Test Position: {test_position}")
+        if 0 <= test_position[0] < 6 and 0 <= test_position[1] < 7:
+            if str(self.world[test_position[0]][test_position[1]]) != "WALL" and str(self.world[test_position[0]][test_position[1]]) != "OUT":
+                self.agent_last_movement = self.agent_action
+                print(f"Success: Test Position Valid, Returning : {test_position}")
+                return test_position
+            else:
+                print(f"Failure: Bumped Into WALL, Returning : {old_position}")
+                self.bump = True
+                return old_position
+        else:
+            print(f"Failure: Bumped Into OUT OF BOUNDS, Returning : {old_position}")
             self.bump = True
             return old_position
-        else:
-            return test_position
 
 def optimize():
     value_list = []
@@ -890,7 +907,7 @@ def optimize():
                 test_steps += 1
             deep_value_list += test_vacuum_world.score
         value_list.append(x)
-        value_list.append(deep_value_list / 20)
+        value_list.append(deep_value_list / 50)
 
     print(value_list)
 
@@ -923,10 +940,7 @@ if __name__ == '__main__':
     steps = 0
     run = True
     vacuum_world = Normal_Vacuum_Environment()
-    vacuum_world.create_world(yamada)
-    print(f"Initial State: \n{vacuum_world}")
-    roomba = Model_Agent()
-    vacuum_world.create_world(yamada)
+    vacuum_world.create_world(depue)
     print(f"Initial State: {vacuum_world}")
     roomba = Toyota_Corolla_Agent()
     while run:
@@ -937,7 +951,7 @@ if __name__ == '__main__':
         vacuum_world.agent_percept(roomba)
         vacuum_world.agent_update(roomba)
         vacuum_world.change_environment()
-        vacuum_world.do_kids_create_dirt()
+        # vacuum_world.do_kids_create_dirt()
         print("-    Other Debug Info     -")
         print(f"World State: \n{vacuum_world}")
         print(f"Agent Percept: {roomba.percepts}")
