@@ -5,7 +5,7 @@ import logging
 from hw4_util import Tile
 
 from hw4_util import read_world
-from yamada_world import yamada, deer, catalan, churchland, meister, depue, liu, sarkissian, suddath
+from yamada_world import yamada # , deer, catalan, churchland, meister, depue, liu, sarkissian, suddath
 
 def setup_logging(level):
     logging.basicConfig(level=0, format='%(asctime)s{%(levelname)s} %(message)s', datefmt='%H:%M:%S')
@@ -583,21 +583,35 @@ class Vacuum_Environment(ABC):
         '''
         assert number_of_dirt != 0, "Cannot make 0 dirt"
 
-        dirt_created = 0 # Number of clean rooms converted into dirty rooms
+        clean_tile_in_world = False
+        for row in self.world:
+            for element in row:
+                if element.value == 1:
+                    clean_tile_in_world = True
+
+        if clean_tile_in_world == False:
+            return
+
+        dirt_created = 0  # Number of clean rooms converted into dirty rooms
+
         while True:
-            random_row = randint(0, len(self.world)) # Random row in the world environment
-            clean_rooms = self.world[random_row].count(1) # Number of clean rooms in the row of rooms
+            random_row = randint(0, len(self.world)-1) # Random row in the world environment
+            clean_rooms = 0
+            for i in self.world[random_row]: # Shorten this was map and lambda
+                if i.value == 1:
+                    clean_rooms += 1
             if dirt_created == number_of_dirt: # If the desired number of dirty rooms have been created, stop
                 break
             elif clean_rooms > 0: # Else if the number of clean rooms in the row is greater than 0. If not, go to
                                   # Another row.
-                dirty_room = randint(0, clean_rooms) # The xth clean room in the row is going to become dirty
+                dirty_room = randint(0, clean_rooms-1) # The xth clean room in the row is going to become dirty
                 clean_room_count = 0 # Number of clean rooms already cycled through
-                for i in range(len(self.world)): # Cycle through the desired row
-                    if self.world[random_row][i] == 1:
+                for i in range(len(self.world[random_row])): # Cycle through to the desired row
+                    if self.world[random_row][i].value == 1:
                         if clean_room_count == dirty_room: # If its the desired clean room to be dirty, make it dirty.
-                            self.world[random_row][i] = 3
-                            continue
+                            self.world[random_row][i] = dirty_tile
+                            dirt_created += 1
+                            break
                         else:
                             clean_room_count += 1
 
@@ -864,7 +878,7 @@ def optimize():
             test_steps = 0
             test_run = True
             test_vacuum_world = Normal_Vacuum_Environment()
-            test_vacuum_world.create_world(depue)
+            # test_vacuum_world.create_world(depue)
             test_roomba = Toyota_Corolla_Agent()
             test_roomba.set_random_change(x)
             while test_run:
@@ -909,15 +923,12 @@ if __name__ == '__main__':
     steps = 0
     run = True
     vacuum_world = Normal_Vacuum_Environment()
-<<<<<<< HEAD
     vacuum_world.create_world(yamada)
     print(f"Initial State: \n{vacuum_world}")
     roomba = Model_Agent()
-=======
-    vacuum_world.create_world(liu)
+    vacuum_world.create_world(yamada)
     print(f"Initial State: {vacuum_world}")
     roomba = Toyota_Corolla_Agent()
->>>>>>> origin/master
     while run:
         if steps == step_max:
             run = False
@@ -926,7 +937,7 @@ if __name__ == '__main__':
         vacuum_world.agent_percept(roomba)
         vacuum_world.agent_update(roomba)
         vacuum_world.change_environment()
-        # vacuum_world.do_kids_create_dirt()
+        vacuum_world.do_kids_create_dirt()
         print("-    Other Debug Info     -")
         print(f"World State: \n{vacuum_world}")
         print(f"Agent Percept: {roomba.percepts}")
@@ -942,12 +953,3 @@ if __name__ == '__main__':
         print(f"\nThe roomba has completed the task(s) in the environment(s) {total_score} times.")
     else:
         print("\nThe roomba has not completed the task(s) in the environment.")
-
-    print("FIX REPRESENT DUMBASS")
-    print("Make Random Location")
-    print("Make dirt kids")
-
-    optimize()
-
-
-
