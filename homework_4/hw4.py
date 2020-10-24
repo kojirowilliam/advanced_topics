@@ -896,12 +896,8 @@ if __name__ == '__main__':
     if total_score > 0:
         print(f"\nThe roomba has completed the task(s) in the environment(s) {total_score} times.")
     else:
-<<<<<<< HEAD
-        print("\nThe roomba has not completed the task(s) in the environment.")
-=======
         print("\nThe roomba has not completed the task(s) in the environment.")
 
     print("FIX REPRESENT DUMBASS")
     print("Make Random Location")
     print("Make dirt kids")
->>>>>>> origin/master
