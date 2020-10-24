@@ -246,6 +246,75 @@ class Model_Agent(Agent):
     def agent_type(self):
         return "Model_Agent"
 
+    def prepmap(self, x, y):
+        row = ['-'] * ((2 * x) - 1)
+        self.world = [row] * ((2 * y) - 1)
+        self.agent_col = x - 1
+        self.agent_row = y - 1
+        return self.world
+
+    def mapping(self, agent_percepts):
+        '''agent tries to construct a map of the world based on past experience'''
+        if self.action == "right":  # agent moves right
+            if agent_percepts != "bump":  # agent has not ran into a wall
+                self.agent_col += 1  # collumn variable changed
+                self.world[self.agent_row][self.agent_col] = 1  # agent's new square marked as empty
+            if agent_percepts == "bump":  # agent has ran into wall
+                self.world[self.agent_row][self.agent_col + 1] = 2  # square to the right of the agent marked as wall
+        if self.action == "left":  # agent moves left
+            if agent_percepts != "bump":  # agent has not ran into wall
+                self.agent_col -= 1  # collumn variable changed appropriately
+                self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
+            if agent_percepts == "bump":  # agent has hit a wall
+                self.world[self.agent_row][self.agent_col - 1] = 2  # square to the left of agent marked as wall
+        if self.action == "up":  # agent moves up
+            if agent_percepts != "bump":  # agent has not hit a wall
+                self.agent_row -= 1  # row variable decreased
+                self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
+            if agent_percepts == "bump":  # agent has encountered a wall
+                self.world[self.agent_row - 1][self.agent_col] = 2  # square directly above agent marked as wall
+        if self.action == "down":  # agent moves down
+            if agent_percepts != "bump":  # agent does not hit wall
+                self.agent_row += 1  # row variable changed accordingly
+                self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
+            if agent_percepts == "bump":  # agent has encountered wall
+                self.world[self.agent_row + 1][self.agent_col] = 2  # square directly below agent marked as wall
+
+    def get_pos_value(self, x, y):  # returns the value of a position on the map
+        return self.world[x][y]
+
+    def has_visited(self, x, y):  # checks if agent has already visited a portion of the map
+        if self.world[x][y] != '-':
+            return True
+        else:
+            return False
+
+    self.antiloop = []  # list to be used to monitor whether the agent is stuck in a loop
+
+    def loop_tracker(self):
+        '''
+        Watches for possible loops the agent could be stuck in
+        Returns
+        -------
+        True/False
+        '''
+        coords = self.agent_row, self.agent_col  # coordinates of agent
+        if self.has_visited(coords):
+            if self.antiloop.count([
+                                       coords]) >= 3:  # method of tracking loops only works if agent has visited a square at least 3 times
+                loop_spots = [i for i in range(len(self.antiloop)) if self.antiloop[i] == [coords]][
+                             -2:]  # makes list of indexes of every time the agent has previously been in its current square (only takes the last 2 as only 2 are needed)
+                if self.antiloop[loop_spots[0] + 1] == self.antiloop[loop_spots[
+                                                                         1] + 1]:  # if the move directly after each of the previous visits is the same then the agent might be stuck in a loop
+                    self.antiloop = []  # list keeping track of previous positions is wiped so the previous if/else statements don't keep checking the same occurences
+                    return True
+                else:
+                    self.antiloop = []  # list keeping track is wiped for the same reason
+                    self.antiloop.append([coords])  # current coordinates are appended
+                    return False
+            else:
+                self.antiloop.append([coords])  # if agent has not visited a given square at least 3 times its current position is added to list
+
     def rules(self):
         '''
         Returns an action depending on the agent's perceptions of the environment.
@@ -345,74 +414,10 @@ class Model_Agent(Agent):
     def virtual_box_check(self):
         return False
 
-    def virtual_bump_check(self, proposed_action):
-        return False
 
-    def prepmap(self, x, y):
-        row = ['-'] * ((2 * x) - 1)
-        self.world = [row] * ((2 * y) - 1)
-        self.agent_col = x - 1
-        self.agent_row = y - 1
-        return self.world
 
-    def mapping(self, agent_percepts):
-        '''agent tries to construct a map of the world based on past experience'''
-        if self.action == "right":  # agent moves right
-            if agent_percepts != "bump":  # agent has not ran into a wall
-                self.agent_col += 1  # collumn variable changed
-                self.world[self.agent_row][self.agent_col] = 1  # agent's new square marked as empty
-            if agent_percepts == "bump":  # agent has ran into wall
-                self.world[self.agent_row][self.agent_col + 1] = 2  # square to the right of the agent marked as wall
-        if self.action == "left":  # agent moves left
-            if agent_percepts != "bump":  # agent has not ran into wall
-                self.agent_col -= 1  # collumn variable changed appropriately
-                self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
-            if agent_percepts == "bump":  # agent has hit a wall
-                self.world[self.agent_row][self.agent_col - 1] = 2  # square to the left of agent marked as wall
-        if self.action == "up":  # agent moves up
-            if agent_percepts != "bump":  # agent has not hit a wall
-                self.agent_row -= 1  # row variable decreased
-                self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
-            if agent_percepts == "bump":  # agent has encountered a wall
-                self.world[self.agent_row - 1][self.agent_col] = 2  # square directly above agent marked as wall
-        if self.action == "down":  # agent moves down
-            if agent_percepts != "bump":  # agent does not hit wall
-                self.agent_row += 1  # row variable changed accordingly
-                self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
-            if agent_percepts == "bump":  # agent has encountered wall
-                self.world[self.agent_row + 1][self.agent_col] = 2  # square directly below agent marked as wall
 
-    def get_pos_value(self, x, y):  # returns the value of a position on the map
-        return self.world[x][y]
 
-    def has_visited(self, x, y):    # checks if agent has already visited a portion of the map
-        if self.world[x][y]!='-':
-            return True
-        else:
-            return False
-
-    self.antiloop=[]                                                                                                    # list to be used to monitor whether the agent is stuck in a loop
-
-    def loop_tracker(self):
-        '''
-        Watches for possible loops the agent could be stuck in
-        Returns
-        -------
-        True/False
-        '''
-    coords=self.agent_row,self.agent_col                                                                                # coordinates of agent
-        if self.has_visited(coords):
-            if self.antiloop.count([coords])>=3:                                                                        # method of tracking loops only works if agent has visited a square at least 3 times
-                loop_spots=[i for i in range(len(self.antiloop)) if self.antiloop[i]==[coords]][:2]                     # makes list of indexes of every time the agent has previously been in its current square (only takes the first 2 as only 2 are needed)
-                if self.antiloop[loop_spots[0]+1]==self.antiloop[loop_spots[1]+1]:                                      # if the move directly after each of the previous visits is the same then the agent might be stuck in a loop
-                    self.antiloop=[]                                                                                    # list keeping track of previous positions is wiped so the previous if/else statements don't keep checking the same occurences
-                    return True
-                else:
-                    self.antiloop=[]                                                                                    # list keeping track is wiped for the same reason
-                    self.antiloop.append([coords])                                                                      # current coordinates are appended
-                    return False
-            else:
-            self.antiloop.append([coords])                                                                              # if agent has not visited a given square at least 3 times its current position is added to list
 
 class Vacuum_Environment(ABC):
     """
