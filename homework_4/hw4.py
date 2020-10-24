@@ -247,8 +247,8 @@ class Model_Agent(Agent):
         self.prepmap(6, 7)
         self.agent_col = 0
         self.agent_row = 0
-        self.agent_last_successful = ""
-        self.cardinal_action = ""
+        self.agent_last_successful = "right"
+        self.cardinal_action = "right"
         self.antiloop = []  # list to be used to monitor whether the agent is stuck in a loop
         super().__init__()
 
@@ -274,13 +274,10 @@ class Model_Agent(Agent):
         return self.world
 
     def interpret_cardinal_action(self):
-        '''
-        Because the agent gives actions based on the way it is "facing" so these actions need to be converted to cardinal actions in order to map properly.
-        Returns
-        -------
-        the agents action in cardinal diractions (a string)
-        '''
-        self.cardinal_action = str(movement_decrypt[self.agent_last_successful][self.action])
+        if self.action != "suck":
+            self.cardinal_action = str(movement_decrypt[self.agent_last_successful][self.action])
+            print("Cardinal")
+            print(self.cardinal_action)
 
     def mapping(self, agent_percepts):
         '''agent tries to construct a map of the world based on past experience'''
@@ -429,7 +426,7 @@ class Model_Agent(Agent):
                 print(self.action)
             else:  # we haven't bumped into anything, so try to move right
                 print("Not Bumped - NORMAL ACTION")
-                self.agent_last_successful = self.action # store last successful action
+                # store last successful action
 
                 if self.loop_tracker():  # check for multiple loops
                     # self.action = "right"
@@ -442,6 +439,7 @@ class Model_Agent(Agent):
             if self.action == "error":  # we've tried to move everywhere and nothing worked, throw error
                 raise AttributeError("Roomba is stuck in a hole, no possible movements")
 
+        self.agent_last_successful = self.cardinal_action
         self.interpret_cardinal_action()
         self.mapping(self.percepts)
 
