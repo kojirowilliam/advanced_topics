@@ -247,6 +247,7 @@ class Model_Agent(Agent):
         return "Model_Agent"
 
     def prepmap(self, x, y):
+        self.antiloop = []  # list to be used to monitor whether the agent is stuck in a loop
         row = ['-'] * ((2 * x) - 1)
         self.world = [row] * ((2 * y) - 1)
         self.agent_col = x - 1
@@ -289,8 +290,6 @@ class Model_Agent(Agent):
         else:
             return False
 
-    self.antiloop = []  # list to be used to monitor whether the agent is stuck in a loop
-
     def loop_tracker(self):
         '''
         Watches for possible loops the agent could be stuck in
@@ -300,12 +299,9 @@ class Model_Agent(Agent):
         '''
         coords = self.agent_row, self.agent_col  # coordinates of agent
         if self.has_visited(coords):
-            if self.antiloop.count([
-                                       coords]) >= 3:  # method of tracking loops only works if agent has visited a square at least 3 times
-                loop_spots = [i for i in range(len(self.antiloop)) if self.antiloop[i] == [coords]][
-                             -2:]  # makes list of indexes of every time the agent has previously been in its current square (only takes the last 2 as only 2 are needed)
-                if self.antiloop[loop_spots[0] + 1] == self.antiloop[loop_spots[
-                                                                         1] + 1]:  # if the move directly after each of the previous visits is the same then the agent might be stuck in a loop
+            if self.antiloop.count([coords]) >= 3:  # method of tracking loops only works if agent has visited a square at least 3 times
+                loop_spots = [i for i in range(len(self.antiloop)) if self.antiloop[i] == [coords]][-2:]  # makes list of indexes of every time the agent has previously been in its current square (only takes the last 2 as only 2 are needed)
+                if self.antiloop[loop_spots[0] + 1] == self.antiloop[loop_spots[1] + 1]:  # if the move directly after each of the previous visits is the same then the agent might be stuck in a loop
                     self.antiloop = []  # list keeping track of previous positions is wiped so the previous if/else statements don't keep checking the same occurences
                     return True
                 else:
@@ -346,6 +342,25 @@ class Model_Agent(Agent):
             a string representing the action the Agent wants to make in the environment.
         '''
 
+        rules_dict = {
+            # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is
+            # looking, not cardinal environment directions
+            "right": "forward",
+            "forward": "left",
+            "left": "back",
+            "back": "error"
+        }
+
+        reverse_dict = {
+            # this makes the roomba turn around
+            # turning around means the roomba's old left is not its right, meaning it will try to stick to a wall that's across from it
+            "right": "left",
+            "forward": "back",
+            "left": "right",
+            "back": "forward",
+            "suck": "right"
+        }
+
         dirt_percept = self.percepts[-2]
         bump_percept = self.percepts[-1]
         print("-     Agent's POV     -")
@@ -358,66 +373,25 @@ class Model_Agent(Agent):
             self.action = "suck"  # suck
             self.performance += 1  # update your personal score
         else:
-            # if we haven't tried to move yet, let's move right
-            self.action = self.virtual_ruleset(self.action, bump_percept, dirt_percept)
+            if bump_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
+                self.action = rules_dict.get(self.action)
+                print("We Bumped - DICTIONARY ACTION")
+                print(self.action)
+            else:  # we haven't bumped into anything, so try to move right
+                print("Not Bumped - NORMAL ACTION")
+                if self.loop_tracker():  # check for multiple loops
+                    # self.action = "right"
+                    self.action = reverse_dict.get(
+                        self.action)  # turn around and try to attach to a inside/outside wall
+                else:
+                    self.action = "right"
+
+                print(self.action)
+
+            if self.action == "error":  # we've tried to move everywhere and nothing worked, throw error
+                raise AttributeError("Roomba is stuck in a hole, no possible movements")
 
         return self.action
-
-    def virtual_ruleset(self, prev_action, bump_percept, dirt_percept):
-        rules_dict = {
-            # this is the sequential order of moves in relative roomba space. directions are relative to where roomba is
-            # looking, not cardinal environment directions
-            "right": "forward",
-            "forward": "left",
-            "left": "back",
-            "back": "error"
-        }
-
-        reverse_dict = {
-            # this makes the roomba turn around
-            # turning around means the roomba's old left is not its right
-            # meaning it will try to stick to a wall that's across from it
-            "right": "left",
-            "forward": "back",
-            "left": "right",
-            "back": "forward",
-            "suck": "right"
-        }
-
-        if bump_percept == "bump":  # okay, we tried to move and we hit something,
-            proposed_action = str(rules_dict.get(self.action))  # take our last action and use it to find a new one
-            print("We Bumped - DICTIONARY ACTION")
-            print(proposed_action)
-        else:  # we haven't bumped into anything, so try to move right
-            print("Not Bumped - NORMAL ACTION")
-            if randint(0, 100) < 5:  # TODO: we should call this if we've been circling the same point multiple times
-                proposed_action = reverse_dict.get(prev_action)  # turn around, try to attach to a inside/outside wall
-            else:
-                proposed_action = "right"
-
-            print(proposed_action)
-
-        if proposed_action == "error":
-            # we've tried everything and we're stuck, see if we just put ourself into a hole with virtual blocks
-            if self.virtual_box_check():  # oh wait looks like we locked ourself in, let's delete those blocks
-                # TODO delete virtual blocks
-                # TODO continue and attach
-                self.virtual_ruleset("right", "no bump")
-            else:  # holdup that wasn't us, the map creator messed up, time to raise an error
-                raise AttributeError("Roomba is stuck in a hole")
-        else:
-            if self.virtual_bump_check(proposed_action):  # let's run virtual check to see if that's a virtual block
-                self.virtual_ruleset(proposed_action, "bump")  # if it is, regenerate the rules and dupe it into thinking it bumped into a real block and it didn't work
-            else:
-                return proposed_action  # this won't hit a virtual block, time to see if it'll hit a real one
-
-    def virtual_box_check(self):
-        return False
-
-
-
-
-
 
 class Vacuum_Environment(ABC):
     """
