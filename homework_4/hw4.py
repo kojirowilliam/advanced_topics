@@ -247,7 +247,6 @@ class Model_Agent(Agent):
         self.prepmap(6, 7)
         self.agent_col = 0
         self.agent_row = 0
-        self.world = []
         self.antiloop = []  # list to be used to monitor whether the agent is stuck in a loop
         super().__init__()
 
@@ -305,7 +304,7 @@ class Model_Agent(Agent):
         True/False
         '''
         coords = [self.agent_row, self.agent_col]  # coordinates of agent
-        if self.has_visited(coords):
+        if self.has_visited(coords[0], coords[1]):
             if self.antiloop.count([coords]) >= 3:  # method of tracking loops only works if agent has visited a square at least 3 times
                 loop_spots = [i for i in range(len(self.antiloop)) if self.antiloop[i] == [coords]][-2:]  # makes list of indexes of every time the agent has previously been in its current square (only takes the last 2 as only 2 are needed)
                 if self.antiloop[loop_spots[0] + 1] == self.antiloop[loop_spots[1] + 1]:  # if the move directly after each of the previous visits is the same then the agent might be stuck in a loop
