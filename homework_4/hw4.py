@@ -891,7 +891,7 @@ if __name__ == '__main__':
         vacuum_world.change_environment()
         # vacuum_world.do_kids_create_dirt()
         print("-    Other Debug Info     -")
-        print(f"World State: {vacuum_world}")
+        print(f"World State: \n{vacuum_world}")
         print(f"Agent Percept: {roomba.percepts}")
         print(f"Action: {roomba.action}")
         print(f"Last Passed Action: {vacuum_world.agent_last_movement}")
