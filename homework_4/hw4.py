@@ -43,12 +43,16 @@ string_movement_to_vector = {
 
 class Agent(ABC):
     '''
-    A class that represents an Agent in the Environment.
+    An abstract class that represents a roomba Agent for the Vacuum Environments.
     ...
     Attributes
     ----------
     percepts : list
         tells whether the agent is in the left room and whether the room it's currently in is clean.
+    performance : integer
+        An integer representing the number of times the agent has completed a task.
+    action : string
+        A string representing the current action the agent is going to take.
     Methods
     -------
     set_percepts(agent_percepts)
@@ -62,10 +66,8 @@ class Agent(ABC):
         Parameters
         ----------
         percepts : list
-            a list of strings and/or Nones representing the perception of the environment from the perspective of
-            the agent.
-        performance : int
-            an integer representing the number of times the agent has completed a task.
+            A string list of the history of perceptions from the agent from the environment. The last strings on the
+            list are the current percepts of the agent.
         '''
 
         self.percepts = percepts
@@ -75,7 +77,7 @@ class Agent(ABC):
 
     def set_percepts(self, agent_percepts):
         '''
-        Sets the agent's perception of the environment.
+        Sets the percepts class variable of the environment.
         Parameters
         ----------
         percepts : list
