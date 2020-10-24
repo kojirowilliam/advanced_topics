@@ -289,7 +289,7 @@ class Model_Agent(Agent):
         else:
             return False
 
-    self.antiloop = []  # list to be used to monitor whether the agent is stuck in a loop
+        self.antiloop = []  # list to be used to monitor whether the agent is stuck in a loop
 
     def loop_tracker(self):
         '''
@@ -406,10 +406,11 @@ class Model_Agent(Agent):
             else:  # holdup that wasn't us, the map creator messed up, time to raise an error
                 raise AttributeError("Roomba is stuck in a hole")
         else:
-            if self.virtual_bump_check(proposed_action):  # let's run virtual check to see if that's a virtual block
-                self.virtual_ruleset(proposed_action, "bump")  # if it is, regenerate the rules and dupe it into thinking it bumped into a real block and it didn't work
-            else:
-                return proposed_action  # this won't hit a virtual block, time to see if it'll hit a real one
+            # if self.virtual_bump_check(proposed_action):  # let's run virtual check to see if that's a virtual block
+            #     self.virtual_ruleset(proposed_action, "bump")  # if it is, regenerate the rules and dupe it into thinking it bumped into a real block and it didn't work
+            # else:
+            #     return proposed_action  # this won't hit a virtual block, time to see if it'll hit a real one
+            return proposed_action
 
     def virtual_box_check(self):
         return False
@@ -513,21 +514,35 @@ class Vacuum_Environment(ABC):
         '''
         assert number_of_dirt != 0, "Cannot make 0 dirt"
 
+        clean_tile_in_world = False
+        for row in self.world:
+            for element in row:
+                if element.value == 1:
+                    clean_tile_in_world = True
+
+        if clean_tile_in_world == False:
+            return
+
         dirt_created = 0 # Number of clean rooms converted into dirty rooms
+
         while True:
-            random_row = randint(0, len(self.world)) # Random row in the world environment
-            clean_rooms = self.world[random_row].count(1) # Number of clean rooms in the row of rooms
+            random_row = randint(0, len(self.world)-1) # Random row in the world environment
+            clean_rooms = 0
+            for i in self.world[random_row]: # Shorten this was map and lambda
+                if i.value == 1:
+                    clean_rooms += 1
             if dirt_created == number_of_dirt: # If the desired number of dirty rooms have been created, stop
                 break
             elif clean_rooms > 0: # Else if the number of clean rooms in the row is greater than 0. If not, go to
                                   # Another row.
-                dirty_room = randint(0, clean_rooms) # The xth clean room in the row is going to become dirty
+                dirty_room = randint(0, clean_rooms-1) # The xth clean room in the row is going to become dirty
                 clean_room_count = 0 # Number of clean rooms already cycled through
-                for i in range(len(self.world)): # Cycle through the desired row
-                    if self.world[random_row][i] == 1:
+                for i in range(len(self.world[random_row])): # Cycle through to the desired row
+                    if self.world[random_row][i].value == 1:
                         if clean_room_count == dirty_room: # If its the desired clean room to be dirty, make it dirty.
-                            self.world[random_row][i] = 3
-                            continue
+                            self.world[random_row][i] = dirty_tile
+                            dirt_created += 1
+                            break
                         else:
                             clean_room_count += 1
 
@@ -590,7 +605,7 @@ class Vacuum_Environment(ABC):
         if self.agent_action == "suck":
             if str(self.world[self.agent_position[0]][self.agent_position[1]]) == "DIRTY":
                 print("X  X  X  POGGERS WE JUST CLEANED UP  X  X  X ")
-                self.world[self.agent_position[0]][self.agent_position[1]] = 1
+                self.world[self.agent_position[0]][self.agent_position[1]] = clean_tile
                 self.score += 1
             else:
                 print("ERROR - TRIED TO SUCK IN CLEAN")
@@ -615,7 +630,22 @@ class Vacuum_Environment(ABC):
         list
             an str list with four states: ["OUT", "CLEAN", "WALL","DIRTY"].
         '''
-        return "Represent is currently broken"
+        world_with_agent = []
+        row = []
+        for i in range(len(self.world)):
+            row = []
+            for j in range(len(self.world[i])):
+                element = self.world[i][j]
+                if i == self.agent_position[0] and j == self.agent_position[1]:
+                    row.append(f"Agent + {element}")
+                else:
+                    row.append(element)
+            world_with_agent.append(row)
+
+        # world_with_agent[self.agent_position[0]][self.agent_position[1]] = f"AGENT_POSITION + {agent_is_in}"
+        pretty_world = '\n'.join(map(str, world_with_agent))
+        return pretty_world
+
 
 class Normal_Vacuum_Environment(Vacuum_Environment):
     """
@@ -645,7 +675,7 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
     def check_bounds(self, test_position, old_position):
         print(f"Test Position: {test_position}")
         if 0 <= test_position[0] < 6 and 0 <= test_position[1] < 7:
-            if self.world[test_position[0]][test_position[1]] != "WALL" and self.world[test_position[0]][test_position[1]] != "OUT":
+            if self.world[test_position[0]][test_position[1]].value != 2 and self.world[test_position[0]][test_position[1]] != 0:
                 self.agent_last_movement = self.agent_action
                 print(f"Success: Test Position Valid, Returning : {test_position}")
                 return test_position
@@ -727,9 +757,9 @@ if __name__ == '__main__':
         vacuum_world.agent_percept(roomba)
         vacuum_world.agent_update(roomba)
         vacuum_world.change_environment()
-        # vacuum_world.do_kids_create_dirt()
+        vacuum_world.do_kids_create_dirt()
         print("-    Other Debug Info     -")
-        print(f"World State: {vacuum_world}")
+        print(f"World State:\n {vacuum_world}")
         print(f"Agent Percept: {roomba.percepts}")
         print(f"Action: {roomba.action}")
         print(f"Last Passed Action: {vacuum_world.agent_last_movement}")
