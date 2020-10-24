@@ -247,6 +247,8 @@ class Model_Agent(Agent):
         self.prepmap(6, 7)
         self.agent_col = 0
         self.agent_row = 0
+        self.agent_last_successful = ""
+        self.cardinal_action = ""
         self.antiloop = []  # list to be used to monitor whether the agent is stuck in a loop
         super().__init__()
 
@@ -271,27 +273,30 @@ class Model_Agent(Agent):
         self.agent_row = y - 1
         return self.world
 
+    def interpret_cardinal_action(self):
+        self.cardinal_action = str(movement_decrypt[self.agent_last_successful][self.action])
+
     def mapping(self, agent_percepts):
         '''agent tries to construct a map of the world based on past experience'''
-        if self.action == "right":  # agent moves right
+        if self.cardinal_action == "right":  # agent moves right
             if agent_percepts != "bump":  # agent has not ran into a wall
                 self.agent_col += 1  # collumn variable changed
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new square marked as empty
             if agent_percepts == "bump":  # agent has ran into wall
                 self.world[self.agent_row][self.agent_col + 1] = 2  # square to the right of the agent marked as wall
-        if self.action == "left":  # agent moves left
+        if self.cardinal_action == "left":  # agent moves left
             if agent_percepts != "bump":  # agent has not ran into wall
                 self.agent_col -= 1  # collumn variable changed appropriately
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
             if agent_percepts == "bump":  # agent has hit a wall
                 self.world[self.agent_row][self.agent_col - 1] = 2  # square to the left of agent marked as wall
-        if self.action == "up":  # agent moves up
+        if self.cardinal_action == "up":  # agent moves up
             if agent_percepts != "bump":  # agent has not hit a wall
                 self.agent_row -= 1  # row variable decreased
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
             if agent_percepts == "bump":  # agent has encountered a wall
                 self.world[self.agent_row - 1][self.agent_col] = 2  # square directly above agent marked as wall
-        if self.action == "down":  # agent moves down
+        if self.cardinal_action == "down":  # agent moves down
             if agent_percepts != "bump":  # agent does not hit wall
                 self.agent_row += 1  # row variable changed accordingly
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
@@ -418,6 +423,8 @@ class Model_Agent(Agent):
                 print(self.action)
             else:  # we haven't bumped into anything, so try to move right
                 print("Not Bumped - NORMAL ACTION")
+                self.agent_last_successful = self.action # store last successful action
+
                 if self.loop_tracker():  # check for multiple loops
                     # self.action = "right"
                     self.action = reverse_dict.get(self.action)  # turn around and try to attach to a inside/outside wall
@@ -428,6 +435,9 @@ class Model_Agent(Agent):
 
             if self.action == "error":  # we've tried to move everywhere and nothing worked, throw error
                 raise AttributeError("Roomba is stuck in a hole, no possible movements")
+
+        self.interpret_cardinal_action()
+        self.mapping(self.percepts)
 
         return self.action
 

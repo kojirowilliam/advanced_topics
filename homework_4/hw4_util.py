@@ -54,7 +54,7 @@ def read_world(world_definition, rows=6, cols=7):
     wall = Tile.wall()
     dirty = Tile.dirty()
 
-    #symbol dictionary for world file
+    # symbol dictionary for world file
     legend = { '-': out, '0': clean, '1': wall, '2': dirty }
 
     # split on whitespace
