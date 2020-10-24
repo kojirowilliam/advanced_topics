@@ -5,7 +5,7 @@ import logging
 from hw4_util import Tile
 
 from hw4_util import read_world
-from yamada_world import yamada, deer, catalan, churchland, meister, depue
+from yamada_world import yamada, deer, catalan, churchland, meister, depue, liu, sarkissian, suddath
 
 def setup_logging(level):
     logging.basicConfig(level=0, format='%(asctime)s{%(levelname)s} %(message)s', datefmt='%H:%M:%S')
@@ -73,7 +73,10 @@ class Agent(ABC):
         self.percepts = percepts
         self.performance = 0
         self.action = "right"
+        self.random_chance = 10
 
+    def set_random_change(self, x):
+        self.random_chance = x
 
     def set_percepts(self, agent_percepts):
         '''
@@ -851,6 +854,34 @@ class Simple_Vacuum_Environment(Vacuum_Environment):
         else:
             return test_position
 
+def optimize():
+    value_list = []
+    for x in range(20):
+        deep_value_list = 0
+        for y in range(50):
+            test_total_score = 0
+            test_step_max = 1000
+            test_steps = 0
+            test_run = True
+            test_vacuum_world = Normal_Vacuum_Environment()
+            test_vacuum_world.create_world(depue)
+            test_roomba = Toyota_Corolla_Agent()
+            test_roomba.set_random_change(x)
+            while test_run:
+                if test_steps == test_step_max:
+                    test_run = False
+                test_vacuum_world.agent_percept(test_roomba)
+                test_vacuum_world.agent_update(test_roomba)
+                test_vacuum_world.change_environment()
+                test_steps += 1
+            deep_value_list += test_vacuum_world.score
+        value_list.append(x)
+        value_list.append(deep_value_list / 20)
+
+    print(value_list)
+
+
+
 if __name__ == '__main__':
     '''
     The main loop of the program.
@@ -878,9 +909,15 @@ if __name__ == '__main__':
     steps = 0
     run = True
     vacuum_world = Normal_Vacuum_Environment()
+<<<<<<< HEAD
     vacuum_world.create_world(yamada)
     print(f"Initial State: \n{vacuum_world}")
     roomba = Model_Agent()
+=======
+    vacuum_world.create_world(liu)
+    print(f"Initial State: {vacuum_world}")
+    roomba = Toyota_Corolla_Agent()
+>>>>>>> origin/master
     while run:
         if steps == step_max:
             run = False
@@ -909,3 +946,8 @@ if __name__ == '__main__':
     print("FIX REPRESENT DUMBASS")
     print("Make Random Location")
     print("Make dirt kids")
+
+    optimize()
+
+
+
