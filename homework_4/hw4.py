@@ -40,12 +40,12 @@ string_movement_to_vector = {
 
 class Agent(ABC):
     '''
-    A class that represents an Agent in the Environment.
+    An abstract class that represents an Agent for the Environment.
     ...
     Attributes
     ----------
     percepts : list
-        tells whether the agent is in the left room and whether the room it's currently in is clean.
+        Tells the agent whether the room it's currently in is clean or dirty and whether it whether the agent is in the left room and whether the room it's currently in is clean.
     Methods
     -------
     set_percepts(agent_percepts)
@@ -395,7 +395,7 @@ class Model_Agent(Agent):
 
             if self.action == "error":  # we've tried to move everywhere and nothing worked, throw error
                 raise AttributeError("Roomba is stuck in a hole, no possible movements")
-
+        self.mapping(self.percepts)
         return self.action
 
 class Vacuum_Environment(ABC):
