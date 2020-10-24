@@ -48,7 +48,8 @@ class Agent(ABC):
     Attributes
     ----------
     percepts : list
-        tells whether the agent is in the left room and whether the room it's currently in is clean.
+        A list of strings that represent all of the percepts the agent has had. The last two percepts are the current
+        percepts of the agent.
     performance : integer
         An integer representing the number of times the agent has completed a task.
     action : string
@@ -56,7 +57,7 @@ class Agent(ABC):
     Methods
     -------
     set_percepts(agent_percepts)
-        sets the agent's perception of the environment.
+        sets the agent's perception of the environment as the class variable 'percepts'
     rules()
         returns an action based on the perception of the environment from the perspective of the agent.
     '''
@@ -69,7 +70,6 @@ class Agent(ABC):
             A string list of the history of perceptions from the agent from the environment. The last strings on the
             list are the current percepts of the agent.
         '''
-
         self.percepts = percepts
         self.performance = 0
         self.action = "right"
@@ -81,10 +81,10 @@ class Agent(ABC):
         Parameters
         ----------
         percepts : list
-            A list of strings and/or Nones that represents the environment from the Agent's perceptions
+            A list of strings that represents the history of perceptions from the Agent's perspective of the environment
         '''
-
         self.percepts = agent_percepts
+
 
     @abstractmethod
     def rules(self):
@@ -107,6 +107,14 @@ class Toyota_Corolla_Agent(Agent):
     '''
 
     def agent_type(self):
+        '''
+        Returns the type of agent.
+
+        Returns
+        -------
+            str
+
+        '''
         return "Reflex_Agent"
 
     def rules(self):
@@ -304,28 +312,28 @@ class Model_Agent(Agent):
     def mapping(self, agent_percepts):
         '''agent tries to construct a map of the world based on past experience'''
         if self.cardinal_action == "right":  # agent moves right
-            if agent_percepts != "bump":  # agent has not ran into a wall
+            if agent_percepts[1] != "bump":  # agent has not ran into a wall
                 self.agent_col += 1  # collumn variable changed
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new square marked as empty
-            if agent_percepts == "bump":  # agent has ran into wall
+            if agent_percepts[1] == "bump":  # agent has ran into wall
                 self.world[self.agent_row][self.agent_col + 1] = 2  # square to the right of the agent marked as wall
         if self.cardinal_action == "left":  # agent moves left
-            if agent_percepts != "bump":  # agent has not ran into wall
+            if agent_percepts[1] != "bump":  # agent has not ran into wall
                 self.agent_col -= 1  # collumn variable changed appropriately
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
-            if agent_percepts == "bump":  # agent has hit a wall
+            if agent_percepts[1] == "bump":  # agent has hit a wall
                 self.world[self.agent_row][self.agent_col - 1] = 2  # square to the left of agent marked as wall
         if self.cardinal_action == "up":  # agent moves up
-            if agent_percepts != "bump":  # agent has not hit a wall
+            if agent_percepts[1] != "bump":  # agent has not hit a wall
                 self.agent_row -= 1  # row variable decreased
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
-            if agent_percepts == "bump":  # agent has encountered a wall
+            if agent_percepts[1] == "bump":  # agent has encountered a wall
                 self.world[self.agent_row - 1][self.agent_col] = 2  # square directly above agent marked as wall
         if self.cardinal_action == "down":  # agent moves down
-            if agent_percepts != "bump":  # agent does not hit wall
+            if agent_percepts[1] != "bump":  # agent does not hit wall
                 self.agent_row+=1
                 self.world[self.agent_row][self.agent_col] = 1
-            if agent_percepts == "bump":  # agent has encountered wall
+            if agent_percepts[1] == "bump":  # agent has encountered wall
                 self.world[self.agent_row + 1][self.agent_col] = 2  # square directly below agent marked as wall
 
     def get_pos_value(self, x, y):
@@ -661,7 +669,7 @@ class Vacuum_Environment(ABC):
         if self.agent_action == "suck":
             if str(self.world[self.agent_position[0]][self.agent_position[1]]) == "DIRTY":
                 print("X  X  X  POGGERS WE JUST CLEANED UP  X  X  X ")
-                self.world[self.agent_position[0]][self.agent_position[1]] = 1
+                self.world[self.agent_position[0]][self.agent_position[1]] = clean_tile
                 self.score += 1
             else:
                 print("ERROR - TRIED TO SUCK IN CLEAN")
@@ -770,7 +778,7 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
 
         print(f"Test Position: {test_position}")
         if 0 <= test_position[0] < 6 and 0 <= test_position[1] < 7:
-            if self.world[test_position[0]][test_position[1]] != "WALL" and self.world[test_position[0]][test_position[1]] != "OUT":
+            if str(self.world[test_position[0]][test_position[1]]) != "WALL" and str(self.world[test_position[0]][test_position[1]]) != "OUT":
                 self.agent_last_movement = self.agent_action
                 print(f"Success: Test Position Valid, Returning : {test_position}")
                 return test_position
@@ -871,7 +879,7 @@ if __name__ == '__main__':
     run = True
     vacuum_world = Normal_Vacuum_Environment()
     vacuum_world.create_world(yamada)
-    print(f"Initial State: {vacuum_world}")
+    print(f"Initial State: \n{vacuum_world}")
     roomba = Model_Agent()
     while run:
         if steps == step_max:
