@@ -256,6 +256,17 @@ class Model_Agent(Agent):
         return "Model_Agent"
 
     def prepmap(self, x, y):
+        '''
+        Prepares the list that will contain the map for mapping to begin. Relies on the starting dimensions of the world to make a filler list that will be guaranteed to contain the world no matter where the agent starts.
+        Parameters
+        ----------
+        x
+        y
+
+        Returns
+        -------
+        2d array of '-' with dimensions sufficient to contain the environment
+        '''
         row = ['-'] * ((2 * x) - 1)
         self.world = [row] * ((2 * y) - 1)
         self.agent_col = x - 1
@@ -295,10 +306,32 @@ class Model_Agent(Agent):
             if agent_percepts == "bump":  # agent has encountered wall
                 self.world[self.agent_row + 1][self.agent_col] = 2  # square directly below agent marked as wall
 
-    def get_pos_value(self, x, y):  # returns the value of a position on the map
+    def get_pos_value(self, x, y):
+        '''
+        This checks the value of a given square in the world (relative to starting position)
+        Parameters
+        ----------
+        x
+        y
+
+        Returns
+        -------
+        -,0,1,2,3
+        '''
         return self.world[x][y]
 
-    def has_visited(self, x, y):  # checks if agent has already visited a portion of the map
+    def has_visited(self, x, y):
+        '''
+        Checks whether the agent has visited a certain square
+        Parameters
+        ----------
+        x
+        y
+
+        Returns
+        -------
+        True/False
+        '''
         if self.world[x][y] != '-':
             return True
         else:
