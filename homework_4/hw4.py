@@ -116,10 +116,15 @@ class Toyota_Corolla_Agent(Agent):
         We're always sticking to the right, so the first thing we ALWAYS do is try to move right.
         If we tried to move right last action, and we got back a bump in our percept, let's try to move Forward, etc.
         Right -> Forward -> Left -> Back
-        All the agent knows how to do is see if it bumped, then it chooses a new movement, or it isn't bumped, so it moves right
+
+        All the agent knows how to do is see if it bumped, then it chooses a new movement,
+                                        or it isn't bumped, so it moves right
+
         Remember, these are relative movements, the roomba doesn't know which way is up or down.
-        The enviornment knows which way the Roomba is pointing however. The way the roomba is pointing and it's action is decryrpted by the enviornment.
-        This allows us to stick to the right, even when we're facing left, down, up, or right. We always move to the relative right.
+        The enviornment knows which way the Roomba is pointing however.
+        The way the roomba is pointing and it's action is decryrpted by the enviornment.
+        This allows us to stick to the right, even when we're facing left, down, up, or right.
+        We always move to the relative right.
 
         Returns
         -------
@@ -891,4 +896,12 @@ if __name__ == '__main__':
     if total_score > 0:
         print(f"\nThe roomba has completed the task(s) in the environment(s) {total_score} times.")
     else:
+<<<<<<< HEAD
         print("\nThe roomba has not completed the task(s) in the environment.")
+=======
+        print("\nThe roomba has not completed the task(s) in the environment.")
+
+    print("FIX REPRESENT DUMBASS")
+    print("Make Random Location")
+    print("Make dirt kids")
+>>>>>>> origin/master
