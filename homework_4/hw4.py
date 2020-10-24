@@ -244,9 +244,10 @@ class Model_Agent(Agent):
         runs the rules function recursively to find rules that apply to virtual worlds
     '''
     def __init__(self):
+        self.world=[]
+        self.agent_col=0
+        self.agent_row=0
         self.prepmap(6, 7)
-        self.agent_col = 0
-        self.agent_row = 0
         self.agent_last_successful = "right"
         self.cardinal_action = "right"
         self.antiloop = []  # list to be used to monitor whether the agent is stuck in a loop
@@ -267,13 +268,20 @@ class Model_Agent(Agent):
         -------
         2d array of '-' with dimensions sufficient to contain the environment
         '''
-        row = ['-'] * ((2 * x) - 1)
-        self.world = [row] * ((2 * y) - 1)
+        row = list('-' * ((2 * x) - 1))
+        for i in range(((2 * y) - 1)):
+            self.world.append(row[:])
         self.agent_col = x - 1
         self.agent_row = y - 1
         return self.world
 
     def interpret_cardinal_action(self):
+        '''
+        Converts the relative actions that the agent outputs into cardinal actions for the mapping function
+        Returns
+        -------
+        cardinal direction, string
+        '''
         if self.action != "suck":
             self.cardinal_action = str(movement_decrypt[self.agent_last_successful][self.action])
             print("Cardinal")
@@ -301,8 +309,8 @@ class Model_Agent(Agent):
                 self.world[self.agent_row - 1][self.agent_col] = 2  # square directly above agent marked as wall
         if self.cardinal_action == "down":  # agent moves down
             if agent_percepts != "bump":  # agent does not hit wall
-                self.agent_row += 1  # row variable changed accordingly
-                self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
+                self.agent_row+=1
+                self.world[self.agent_row][self.agent_col] = 1
             if agent_percepts == "bump":  # agent has encountered wall
                 self.world[self.agent_row + 1][self.agent_col] = 2  # square directly below agent marked as wall
 
