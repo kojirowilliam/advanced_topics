@@ -286,6 +286,7 @@ class Model_Agent(Agent):
             self.cardinal_action = str(movement_decrypt[self.agent_last_successful][self.action])
             print("Cardinal")
             print(self.cardinal_action)
+            print(f"Agent's view: {self.agent_row,self.agent_col}")
 
     def mapping(self, agent_percepts):
         '''agent tries to construct a map of the world based on past experience'''
@@ -309,7 +310,7 @@ class Model_Agent(Agent):
                 self.world[self.agent_row - 1][self.agent_col] = 2  # square directly above agent marked as wall
         if self.cardinal_action == "down":  # agent moves down
             if agent_percepts != "bump":  # agent does not hit wall
-                self.agent_row+=1
+                self.agent_row += 1
                 self.world[self.agent_row][self.agent_col] = 1
             if agent_percepts == "bump":  # agent has encountered wall
                 self.world[self.agent_row + 1][self.agent_col] = 2  # square directly below agent marked as wall
@@ -534,6 +535,12 @@ class Vacuum_Environment(ABC):
         assert yamada is not None, "Make sure that you have a variable name with your lastname as the configuration " \
                                    "of your world"
         self.world = read_world(yamada)
+        clean_rooms=[]
+        for i in range(len(self.world)):
+            coord=[x for x in range(len(self.world[i])) if self.world[i][x]==1]
+            for a in range(len(coord)):
+                clean_rooms.append([i,coords[a]])
+        self.agent_position=[randint(0,len(clean_rooms))]
 
     def create_dirt(self, number_of_dirt):
         '''
