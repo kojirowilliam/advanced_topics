@@ -4,6 +4,9 @@ import logging
 
 from hw4_util import Tile
 
+from hw4_util import read_world
+from yamada_world import yamada, deer, catalan, churchland, meister, depue
+
 def setup_logging(level):
     logging.basicConfig(level=0, format='%(asctime)s{%(levelname)s} %(message)s', datefmt='%H:%M:%S')
 
@@ -117,6 +120,7 @@ class Toyota_Corolla_Agent(Agent):
         Remember, these are relative movements, the roomba doesn't know which way is up or down.
         The enviornment knows which way the Roomba is pointing however. The way the roomba is pointing and it's action is decryrpted by the enviornment.
         This allows us to stick to the right, even when we're facing left, down, up, or right. We always move to the relative right.
+
         Returns
         -------
         action : str
@@ -202,6 +206,8 @@ class Simple_Agent(Agent):
         I threw some randomness in there to help it out.
         There's no action sequence here, unlike the other bot.
         This one can get stuck much easier.
+
+        Returns
         -------
         action : str
             a string representing the action the Agent wants to make in the environment.
@@ -246,9 +252,10 @@ class Model_Agent(Agent):
         runs the rules function recursively to find rules that apply to virtual worlds
     '''
     def __init__(self):
+        self.world=[]
+        self.agent_col=0
+        self.agent_row=0
         self.prepmap(6, 7)
-        self.agent_col = 0
-        self.agent_row = 0
         self.agent_last_successful = "right"
         self.cardinal_action = "right"
         self.antiloop = []  # list to be used to monitor whether the agent is stuck in a loop
@@ -259,7 +266,10 @@ class Model_Agent(Agent):
 
     def prepmap(self, x, y):
         '''
-        Prepares the list that will contain the map for mapping to begin. Relies on the starting dimensions of the world to make a filler list that will be guaranteed to contain the world no matter where the agent starts.
+        Prepares the list that will contain the map for mapping to begin.
+        Relies on the starting dimensions of the world to make a filler list
+        that will be guaranteed to contain the world no matter where the agent starts.
+
         Parameters
         ----------
         x
@@ -269,17 +279,22 @@ class Model_Agent(Agent):
         -------
         2d array of '-' with dimensions sufficient to contain the environment
         '''
-        row = ['-'] * ((2 * x) - 1)
-        self.world = [row] * ((2 * y) - 1)
+        row = list('-' * ((2 * x) - 1))
+        for i in range(((2 * y) - 1)):
+            self.world.append(row[:])
         self.agent_col = x - 1
         self.agent_row = y - 1
         return self.world
 
     def interpret_cardinal_action(self):
+        '''
+        Converts the relative actions that the agent outputs into cardinal actions for the mapping function
+        Returns
+        -------
+        cardinal direction, string
+        '''
         if self.action != "suck":
             self.cardinal_action = str(movement_decrypt[self.agent_last_successful][self.action])
-            print("Cardinal")
-            print(self.cardinal_action)
 
     def mapping(self, agent_percepts):
         '''agent tries to construct a map of the world based on past experience'''
@@ -303,8 +318,8 @@ class Model_Agent(Agent):
                 self.world[self.agent_row - 1][self.agent_col] = 2  # square directly above agent marked as wall
         if self.cardinal_action == "down":  # agent moves down
             if agent_percepts != "bump":  # agent does not hit wall
-                self.agent_row += 1  # row variable changed accordingly
-                self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
+                self.agent_row+=1
+                self.world[self.agent_row][self.agent_col] = 1
             if agent_percepts == "bump":  # agent has encountered wall
                 self.world[self.agent_row + 1][self.agent_col] = 2  # square directly below agent marked as wall
 
@@ -490,11 +505,23 @@ class Vacuum_Environment(ABC):
             a nested integer list representing the rooms within the vacuum environment as nothing (0), clean (1), wall (2),
             and dirty (3)
         agent_action : str
-            the action the agent will do in the environment.
+            the action the agent will do in the environment based in cardinal direction
+        agent_last_movement : str
+            the last succesful action the agent took in the enviornemnt in cardinal direction
+        agent_action_relative : str
+            the action the agent took in the enviornment in relative orientation
         environment_won : bool
             Keeps track of whether the environment it is currently in is already won.
         score : int
             Keeps track of the number of times the agent has completed the environments' tasks.
+        agent_percepts : list
+            the complete history of percepts of the agent
+        agent_percepts_buffer : 2-item list
+            the two most recent percepts of the agent
+        agent_position : 2-item list
+            the position of the agent in [row, collumn]
+        bump : bool
+            used to communicate cross function in bump_percept to change_enviornment whether agent has bumped
         '''
 
         self.world = []
@@ -508,11 +535,12 @@ class Vacuum_Environment(ABC):
         self.agent_position = [3, 4]
         self.bump = False
 
-    def create_world(self):
+    def create_world(self, world_parameter):
         '''
         Sets the 'world' class variable representing the different rooms in the environment.
         The 'world' class variable is an integer list representing the environment and the objects within each room:
         nothing (0), clean (1), wall (2), dirty (3)
+
         Asserts
         -------
             If yamada is None, assert.
@@ -522,12 +550,9 @@ class Vacuum_Environment(ABC):
         # TODO:KOJIRO world_config that contains the configuration of the world we want to use.
         # TODO:KOJIRO Replace the assert with logging.
 
-        from hw4_util import read_world
-        from yamada_world import yamada, deer, catalan, churchland, meister, depue
-
-        assert yamada is not None, "Make sure that you have a variable name with your lastname as the configuration " \
+        assert world_parameter is not None, "Make sure that you have a variable name with your lastname as the configuration " \
                                    "of your world"
-        self.world = read_world(yamada)
+        self.world = read_world(world_parameter)
 
     def create_dirt(self, number_of_dirt):
         '''
@@ -535,6 +560,7 @@ class Vacuum_Environment(ABC):
         Parameters
         ----------
             number_of_dirt : Number of clean rooms to be converted into dirty rooms
+
         Asserts
         -------
             number_of_dirt cannot be equal to 0
@@ -567,9 +593,17 @@ class Vacuum_Environment(ABC):
             self.create_dirt(1)
 
     def agent_percept(self, agent):
+        '''
+        Runs all the agent percept functions and resets the buffer after checking it.
+
+        Parameters
+        ----------
+        agent : Object of Agent class
+        '''
         self.agent_dirt_sensor(agent)
         self.agent_bump_sensor(agent)
         agent.set_percepts(self.agent_percepts_buffer)
+        self.agent_percepts_buffer = []
 
     def agent_dirt_sensor(self, agent):
         '''
@@ -585,9 +619,11 @@ class Vacuum_Environment(ABC):
 
         if str(self.world[self.agent_position[0]][self.agent_position[1]]) == "DIRTY":
             print("Agent is passed Dirty percept")
+            self.agent_percepts.append("dirty")
             self.agent_percepts_buffer.append("dirty")
         else:
             print("Agent is passed Clean percept")
+            self.agent_percepts.append("clean")
             self.agent_percepts_buffer.append("clean")
 
     def agent_bump_sensor(self, agent):
@@ -600,9 +636,11 @@ class Vacuum_Environment(ABC):
         '''
 
         if self.bump:
+            self.agent_percepts.append("bump")
             self.agent_percepts_buffer.append("bump")
             self.bump = False
         else:
+            self.agent_percepts.append("no bump")
             self.agent_percepts_buffer.append("no bump")
 
     def change_environment(self):
@@ -632,6 +670,18 @@ class Vacuum_Environment(ABC):
             self.update_agent_position(self.check_bounds(test_position, self.agent_position))
 
     def update_agent_position(self, position):
+        '''
+        Changes agent position
+
+        Parameters
+        ----------
+        position
+
+        Returns
+        -------
+            Nothing
+        '''
+
         self.agent_position = position
 
     def __repr__(self):
@@ -660,6 +710,19 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
     """
 
     def agent_update(self, agent):
+        '''
+        Updates the agent and interprets the agent movement.
+        For info on why we're using relative positioning and directions here, see wiki or agent descriptions.
+
+        ----------
+        Parameters
+            agent : Agent to be updated and taken action from
+        ----------
+        Variables
+            agent_action_relative : Agent's most recent passed back rules
+            agent_last_movement : Agent's most recent successful action (action which didn't result in bump)
+            agent_action : Resultant Decrypted Action
+        '''
         self.agent_action_relative = agent.rules()
         if self.agent_action_relative != "suck":
             print("_____ Interpreting Agent Action _____")
@@ -668,9 +731,24 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
             self.agent_action = str(movement_decrypt[self.agent_last_movement][self.agent_action_relative])
         else:
             self.agent_action = self.agent_action_relative
-        print(f"Decrypted Action: {self.agent_action}")
+        print(f"Resultant Action: {self.agent_action}")
 
     def check_bounds(self, test_position, old_position):
+        '''
+        Checks whether the Agent movement will result in a Bump or result in movement.
+
+        ----------
+        Parameters
+            test_position : the proposed position after the agents movement has been applied to current position
+            old_position : the current agent position
+        ----------
+        Variables
+            agent_last_movement : Agent's most recent successful action (action which didn't result in bump)
+        ----------
+        Returns
+            position : [y coordinate, x coordinate]
+        '''
+
         print(f"Test Position: {test_position}")
         if 0 <= test_position[0] < 6 and 0 <= test_position[1] < 7:
             if self.world[test_position[0]][test_position[1]] != "WALL" and self.world[test_position[0]][test_position[1]] != "OUT":
@@ -680,19 +758,20 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
             else:
                 print(f"Failure: Bumped Into WALL, Returning : {old_position}")
                 self.bump = True
-                # info("Bump Wall")
                 return old_position
         else:
             print(f"Failure: Bumped Into OUT OF BOUNDS, Returning : {old_position}")
             self.bump = True
-            # warn("Bump Out of Bounds")
             return old_position
 
 class Simple_Vacuum_Environment(Vacuum_Environment):
     """
     A class representing a vacuum environment for the Reflex_Agent with nothing (0), clean (1), wall (2), dirty (3)
 
-    Different than normal_vaccuum_enviornment in the way that it records agent movement to figure out where the agent has rotated to regardless of it's success
+    Different than normal_vaccuum_enviornment in the way that it
+    records agent movement to figure out where the agent has rotated to regardless of it's success
+
+    Normal vaccuum enviiornment only changes agent headiing if it doesn't bump into anything
 
     ...
     Attributes
@@ -702,6 +781,20 @@ class Simple_Vacuum_Environment(Vacuum_Environment):
     """
 
     def agent_update(self, agent):
+        '''
+        Updates the agent and interprets the agent movement.
+        This enviornment has one key difference, we ALWAYS make agent heading to last action regardless of success
+        For info on why we're using relative positioning and directions here, see wiki or agent descriptions.
+
+        ----------
+        Parameters
+            agent : Agent to be updated and taken action from
+        ----------
+        Variables
+            agent_action_relative : Agent's most recent passed back rules
+            agent_last_movement : Agent's most recent action - UNLIKE THE NORMAL ENVIORNMENT
+            agent_action : Resultant Decrypted Action
+        '''
         self.agent_action_relative = agent.rules()
         if self.agent_action_relative != "suck":
             self.agent_action = movement_decrypt.get(self.agent_last_movement).get(self.agent_action_relative)
@@ -710,12 +803,26 @@ class Simple_Vacuum_Environment(Vacuum_Environment):
             self.agent_action = self.agent_action_relative
 
     def check_bounds(self, test_position, old_position):
+        '''
+        Checks whether the Agent movement will result in a Bump or result in movement.
+
+        ----------
+        Parameters
+            test_position : the proposed position after the agents movement has been applied to current position
+            old_position : the current agent position
+        ----------
+        Variables
+            agent_last_movement : Agent's most recent successful action (action which didn't result in bump)
+        ----------
+        Returns
+            position : [y coordinate, x coordinate]
+        '''
+
         if self.world[test_position[0]][test_position[1]] == 3:
             self.bump = True
             return old_position
         else:
             return test_position
-
 
 if __name__ == '__main__':
     '''
@@ -744,7 +851,7 @@ if __name__ == '__main__':
     steps = 0
     run = True
     vacuum_world = Normal_Vacuum_Environment()
-    vacuum_world.create_world()
+    vacuum_world.create_world(yamada)
     print(f"Initial State: {vacuum_world}")
     roomba = Model_Agent()
     while run:
@@ -771,3 +878,5 @@ if __name__ == '__main__':
         print(f"\nThe roomba has completed the task(s) in the environment(s) {total_score} times.")
     else:
         print("\nThe roomba has not completed the task(s) in the environment.")
+
+    print("FIX REPRESENT DUMBASS")
