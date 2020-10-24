@@ -274,6 +274,12 @@ class Model_Agent(Agent):
         return self.world
 
     def interpret_cardinal_action(self):
+        '''
+        Because the agent gives actions based on the way it is "facing" so these actions need to be converted to cardinal actions in order to map properly.
+        Returns
+        -------
+        the agents action in cardinal diractions (a string)
+        '''
         self.cardinal_action = str(movement_decrypt[self.agent_last_successful][self.action])
 
     def mapping(self, agent_percepts):
