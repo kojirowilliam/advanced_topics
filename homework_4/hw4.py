@@ -693,7 +693,21 @@ class Vacuum_Environment(ABC):
         list
             an str list with four states: ["OUT", "CLEAN", "WALL","DIRTY"].
         '''
-        return "Represent is currently broken"
+        world_with_agent = []
+        row = []
+        for i in range(len(self.world)):
+            row = []
+            for j in range(len(self.world[i])):
+                element = self.world[i][j]
+                if i == self.agent_position[0] and j == self.agent_position[1]:
+                    row.append(f"Agent + {element}")
+                else:
+                    row.append(element)
+            world_with_agent.append(row)
+
+        # world_with_agent[self.agent_position[0]][self.agent_position[1]] = f"AGENT_POSITION + {agent_is_in}"
+        pretty_world = '\n'.join(map(str, world_with_agent))
+        return pretty_world
 
 class Normal_Vacuum_Environment(Vacuum_Environment):
     """
@@ -878,5 +892,3 @@ if __name__ == '__main__':
         print(f"\nThe roomba has completed the task(s) in the environment(s) {total_score} times.")
     else:
         print("\nThe roomba has not completed the task(s) in the environment.")
-
-    print("FIX REPRESENT DUMBASS")
