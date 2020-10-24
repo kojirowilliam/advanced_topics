@@ -45,7 +45,8 @@ class Agent(ABC):
     Attributes
     ----------
     percepts : list
-        Tells the agent whether the room it's currently in is clean or dirty and whether it whether the agent is in the left room and whether the room it's currently in is clean.
+        Tells the agent whether the room it's currently in is clean or dirty and whether it whether the agent is in the
+        left room and whether the room it's currently in is clean.
     Methods
     -------
     set_percepts(agent_percepts)
@@ -59,7 +60,7 @@ class Agent(ABC):
         Parameters
         ----------
         percepts : list
-            a list of strings and/or Nones representing the perception of the environment from the perspective of
+            a list of strings representing the perception of the environment from the perspective of
             the agent.
         performance : int
             an integer representing the number of times the agent has completed a task.
