@@ -5,7 +5,7 @@ import logging
 from hw4_util import Tile
 
 from hw4_util import read_world
-from yamada_world import yamada # , deer, catalan, churchland, meister, depue, liu, sarkissian, suddath
+from yamada_world import yamada, deer, catalan, churchland, meister, depue, liu, sarkissian, suddath
 
 def setup_logging(level):
     logging.basicConfig(level=0, format='%(asctime)s{%(levelname)s} %(message)s', datefmt='%H:%M:%S')
@@ -56,8 +56,12 @@ class Agent(ABC):
         A string representing the current action the agent is going to take.
     Methods
     -------
+    set_random_change(x)
+        sets a random number.
+
     set_percepts(agent_percepts)
         sets the agent's perception of the environment as the class variable 'percepts'
+
     rules()
         returns an action based on the perception of the environment from the perspective of the agent.
     '''
@@ -87,7 +91,6 @@ class Agent(ABC):
             A list of strings that represents the history of perceptions from the Agent's perspective of the environment
         '''
         self.percepts = agent_percepts
-
 
     @abstractmethod
     def rules(self):
@@ -923,12 +926,9 @@ if __name__ == '__main__':
     steps = 0
     run = True
     vacuum_world = Normal_Vacuum_Environment()
-    vacuum_world.create_world(yamada)
-    print(f"Initial State: \n{vacuum_world}")
-    roomba = Model_Agent()
-    vacuum_world.create_world(yamada)
+    vacuum_world.create_world(depue)
     print(f"Initial State: {vacuum_world}")
-    roomba = Toyota_Corolla_Agent()
+    roomba = Model_Agent()
     while run:
         if steps == step_max:
             run = False
