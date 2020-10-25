@@ -4,7 +4,7 @@ Explanation for code needed here.
 
 Non-deterministic
 
-**SIMULATION DATA:**   
+  **Reflex Simulation Data**   
 
 On Spell's world, our SRV2 (non-hosing version) achieved **98% accuracy** or an average of 3.928 over 125 trials.
 20 Trial Performance History (**perfect**): [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
@@ -40,6 +40,7 @@ On Catalan's world, our SRV2 achieved **100% accuracy** or an average of 10.0 ov
 20 Trial Performance History (**perfect**): [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
 
 
+  **Model Simulation Data**
 
 Code Readability 
 
@@ -68,9 +69,23 @@ SRV2
 
 - [x] Rules
 - [x] Percepts
-- [x] Mars
-- [ ] Jupiter
-- [ ] Saturn
-- [ ] Uranus
-- [ ] Neptune
-- [ ] Comet Haley
+- [ ] Explanation
+
+Model_Agent
+
+- [x] Rules
+- [ ] Mapping
+- [ ] Loop Checking
+
+- [ ] Explanation
+- [ ] Simulation Data
+
+SRV2+
+
+- [ ] Hose Function
+- [ ] Hose Detection
+
+Defective
+
+- [ ] Doc Strings
+- [ ] Wiki Explanation
