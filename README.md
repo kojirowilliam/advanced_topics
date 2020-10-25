@@ -18,7 +18,7 @@ Performance History:
 On Depue's world, our SRV2 achieved **100% accuracy** or an average of 8.0 over 125 trials.   
 20 Trial Performance History (**perfect**): [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]   
 
-On Yamada's world, our SRV2 achieved **99.5% accuracy** or an average of 15.92 over 125 trials.
+On Yamada's world, our SRV2 achieved **99.5% accuracy** or an average of 15.92 over 125 trials.   
 20 Trial Performance History (**perfect**): [16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16]      
   Frequency:   
   16s - 115    
