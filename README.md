@@ -6,7 +6,7 @@ Non-deterministic
 
   **Reflex Simulation Data**   
 
-On Spell's world, our SRV2 (non-hosing version) achieved **98% accuracy** or an average of 3.928 over 125 trials.
+On Spell's world, our SRV2 (non-hosing version) achieved **98% accuracy** or an average of 3.928 over 125 trials.   
 20 Trial Performance History (**perfect**): [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]   
   Frequency:   
   4s - 115    
@@ -15,29 +15,29 @@ On Spell's world, our SRV2 (non-hosing version) achieved **98% accuracy** or an 
 On Spell's world, our SRV2+ achieved **100% accuracy**.
 Performance History:
 
-On Depue's world, our SRV2 achieved **100% accuracy** or an average of 8.0 over 125 trials.
-20 Trial Performance History (**perfect**): [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
+On Depue's world, our SRV2 achieved **100% accuracy** or an average of 8.0 over 125 trials.   
+20 Trial Performance History (**perfect**): [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]   
 
 On Yamada's world, our SRV2 achieved **99.5% accuracy** or an average of 15.92 over 125 trials.
-20 Trial Performance History (**perfect**): [16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16]   
+20 Trial Performance History (**perfect**): [16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16]      
   Frequency:   
   16s - 115    
   15s - 10    
 
-On Meister's world, our SRV2 achieved **100% accuracy**. or an average of 5.0 over 125 trials.
-20 Trial Performance History (**perfect**): [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+On Meister's world, our SRV2 achieved **100% accuracy**. or an average of 5.0 over 125 trials.   
+20 Trial Performance History (**perfect**): [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]   
 
-On Sarkissians' world, our SRV2 achieved **100% accuracy** or an average of 8.0 over 125 trials.
-20 Trial Performance History (**perfect**): [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
+On Sarkissians' world, our SRV2 achieved **100% accuracy** or an average of 8.0 over 125 trials.   
+20 Trial Performance History (**perfect**): [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]   
 
 On Liu's world, our SRV2 achieved **100% accuracy**  or an average of 5 over 125 trials.
-20 Trial Performance History (**perfect**): [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+20 Trial Performance History (**perfect**): [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]   
 
-On Suddath's world, our SRV2 achieved **100% accuracy** or an average of 4.0 over 125 trials.
-20 Trial Performance History (**perfect**): [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+On Suddath's world, our SRV2 achieved **100% accuracy** or an average of 4.0 over 125 trials.   
+20 Trial Performance History (**perfect**): [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]   
 
-On Catalan's world, our SRV2 achieved **100% accuracy** or an average of 10.0 over 125 trials.
-20 Trial Performance History (**perfect**): [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+On Catalan's world, our SRV2 achieved **100% accuracy** or an average of 10.0 over 125 trials.   
+20 Trial Performance History (**perfect**): [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]   
 
 
   **Model Simulation Data**
