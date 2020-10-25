@@ -59,8 +59,10 @@ class Agent(ABC):
     -------
     set_percepts(agent_percepts)
         sets the agent's perception of the environment as the class variable 'percepts'
+    set_random_change(x)
+        Sets a random number
     rules()
-        returns an action based on the perception of the environment from the perspective of the agent.
+        An abstract method used by the subclasses to define the rules of the agent.
     '''
 
     def __init__(self, percepts=None):
@@ -89,9 +91,11 @@ class Agent(ABC):
         '''
         self.percepts = agent_percepts
 
-
     @abstractmethod
     def rules(self):
+        '''
+        An abstract method used by the subclasses to define the rules of the agent.
+        '''
         pass
 
 class Toyota_Corolla_Agent(Agent):
@@ -101,7 +105,12 @@ class Toyota_Corolla_Agent(Agent):
     Attributes
     ----------
     percepts : list
-        tells whether the agent has bumped into a wall, whether the ground/wall is clean
+        A list of strings that represent all of the percepts the agent has had. The last two percepts are the current
+        percepts of the agent.
+    performance : integer
+        An integer representing the number of times the agent has completed a task.
+    action : string
+        A string representing the current action the agent is going to take.
     Methods
     -------
     agent_type()
@@ -116,7 +125,8 @@ class Toyota_Corolla_Agent(Agent):
 
         Returns
         -------
-            str
+        agent_type : str
+            A string representing the type of agent:
 
         '''
         return "Reflex_Agent"
@@ -130,7 +140,7 @@ class Toyota_Corolla_Agent(Agent):
         Right -> Forward -> Left -> Back
 
         All the agent knows how to do is see if it bumped, then it chooses a new movement,
-                                        or it isn't bumped, so it moves right
+        or it isn't bumped, so it moves right
 
         Remember, these are relative movements, the roomba doesn't know which way is up or down.
         The enviornment knows which way the Roomba is pointing however.
@@ -138,6 +148,10 @@ class Toyota_Corolla_Agent(Agent):
         This allows us to stick to the right, even when we're facing left, down, up, or right.
         We always move to the relative right.
 
+        Raise
+        -----
+        raise AttrtibuteError
+            If self.action is equal to 'error', raise this error to notify that the agent is in a hole.
         Returns
         -------
         action : str
@@ -163,8 +177,8 @@ class Toyota_Corolla_Agent(Agent):
             "suck": "right"
         }
 
-        dirt_percept = self.percepts[-2]
-        bump_percept = self.percepts[-1]
+        dirt_percept = self.percepts[-2] # The second to last percept is the current dirt percept
+        bump_percept = self.percepts[-1] # The last percept is the current bump percept
         print("-     Agent's POV     -")
         print(f"Dirt Percept: {dirt_percept}")
         print(f"Bump Percept: {bump_percept}")
@@ -182,7 +196,6 @@ class Toyota_Corolla_Agent(Agent):
             else:  # we haven't bumped into anything, so try to move right
                 print("Not Bumped - NORMAL ACTION")
                 if randint(0, 100) < 5 : # random case to help us get to harder-to-reach areas
-                    # self.action = "right"
                     self.action = reverse_dict.get(self.action) # turn around and try to attach to a inside/outside wall
                 else:
                     self.action = "right"
@@ -297,12 +310,12 @@ class Toyota_Corolla_Agent_Plus(Agent):
 class Simple_Agent(Agent):
     '''
     A class that represents our second Reflex Agent in the Environment.
-    We were scared that our first reflex agent was using too much information (even
+    We were scared that our first reflex agent was using too much information about the environment
     ...
     Attributes
     ----------
     percepts : list
-        tells whether the agent has bumped into a wall, whether the ground/wall is clean
+        tells whether the agent has bumped into a wall and whether the ground/wall is clean
     Methods
     -------
     agent_type()
@@ -876,11 +889,8 @@ class Vacuum_Environment(ABC):
 
         Parameters
         ----------
-        position
-
-        Returns
-        -------
-            Nothing
+        position : list
+            A list containing the y and x values of the agent's position in the vacuum world.
         '''
 
         self.agent_position = position
