@@ -92,6 +92,9 @@ class Agent(ABC):
 
     @abstractmethod
     def rules(self):
+        '''
+        An abstract method used by the subclasses to define the rules of the agent.
+        '''
         pass
 
 class Toyota_Corolla_Agent(Agent):
@@ -101,7 +104,12 @@ class Toyota_Corolla_Agent(Agent):
     Attributes
     ----------
     percepts : list
-        tells whether the agent has bumped into a wall, whether the ground/wall is clean
+        A list of strings that represent all of the percepts the agent has had. The last two percepts are the current
+        percepts of the agent.
+    performance : integer
+        An integer representing the number of times the agent has completed a task.
+    action : string
+        A string representing the current action the agent is going to take.
     Methods
     -------
     agent_type()
@@ -139,6 +147,10 @@ class Toyota_Corolla_Agent(Agent):
         This allows us to stick to the right, even when we're facing left, down, up, or right.
         We always move to the relative right.
 
+        Raise
+        -----
+        raise AttrtibuteError
+            If self.action is equal to 'error', raise this error to notify that the agent is in a hole.
         Returns
         -------
         action : str
@@ -711,11 +723,8 @@ class Vacuum_Environment(ABC):
 
         Parameters
         ----------
-        position
-
-        Returns
-        -------
-            Nothing
+        position : list
+            A list containing the y and x values of the agent's position in the vacuum world.
         '''
 
         self.agent_position = position
