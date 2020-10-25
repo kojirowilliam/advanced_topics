@@ -51,8 +51,8 @@ Code Readability
 
 Enviornment
 
-- [ ] Implemented
-- [ ] Doc Strings
+- [x] Implemented
+- [x] Doc Strings
 
 Custom Worlds
 
@@ -69,14 +69,13 @@ SRV2
 
 - [x] Rules
 - [x] Percepts
-- [ ] Explanation
+- [ ] Wiki Explanation
 
 Model_Agent
 
 - [x] Rules
 - [ ] Mapping
 - [ ] Loop Checking
-
 - [ ] Explanation
 - [ ] Simulation Data
 
@@ -87,5 +86,5 @@ SRV2+
 
 Defective
 
-- [ ] Doc Strings
+- [x] Doc Strings
 - [ ] Wiki Explanation
