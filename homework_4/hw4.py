@@ -746,6 +746,7 @@ class Vacuum_Environment(ABC):
         self.agent_action = ""
         self.agent_last_movement = "right"
         self.agent_action_relative = "right"
+        self.universal_last_agent_action = "right"
         self.environment_won = False
         self.score = 0
         self.agent_percepts_history = []
@@ -911,7 +912,7 @@ class Vacuum_Environment(ABC):
                 print("ERROR - TRIED TO SUCK IN CLEAN")
                 error("TRIED TO SUCK IN CLEAN")
         elif self.agent_action == "hose":
-            hose_movement_vector = string_movement_to_vector.get(self.agent_last_movement)
+            hose_movement_vector = string_movement_to_vector.get(self.universal_last_agent_action)
             print(f"Hose Movement_vector: {hose_movement_vector}")
             print(f"Agent_position: {self.agent_position}")
             hose_test_position = [self.agent_position[0] + hose_movement_vector[0], self.agent_position[1] + hose_movement_vector[1]]
@@ -1033,6 +1034,7 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
                 if "DIRTY" in str(self.world[test_position[0]][test_position[1]]) and "WALL" in str(self.world[test_position[0]][test_position[1]]):
                     print("BEEEE BOOOO BEEE BOOO")
                     self.hose_percept = True
+                self.universal_last_agent_action = self.agent_action
                 self.bump = True
                 return old_position
         else:
@@ -1209,7 +1211,7 @@ def optimize():
         test_steps = 0
         test_run = True
         test_vacuum_world = Normal_Vacuum_Environment()
-        test_vacuum_world.create_world(yamada)
+        test_vacuum_world.create_world(spell)
         test_roomba = Toyota_Corolla_Agent()
         while test_run:
             if test_steps == test_step_max:
