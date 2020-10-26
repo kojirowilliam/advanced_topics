@@ -54,10 +54,10 @@ On Catalan's world, our SRV2 achieved **100% accuracy** or an average of 10.0 ov
 
 Code Readability 
 
-- [ ] Doc Strings
-- [ ] Wiki and Explaining Text
+- [x] Doc Strings
+- [x] Wiki and Explaining Text
 - [ ] Double Check Done
-- [ ] 1.4 Console Outputs
+- [x] 1.4 Console Outputs
 
 Enviornment
 
@@ -84,15 +84,15 @@ SRV2
 Model_Agent
 
 - [x] Rules
-- [x] Mapping
-- [x] Loop Checking
+- [ ] Mapping
+- [ ] Loop Checking
 - [x] Explanation
-- [ ] Simulation Data
+- [x] Simulation Data
 
 SRV2+
 
-- [ ] Hose Function
-- [ ] Hose Detection
+- [x] Hose Function
+- [x] Hose Detection
 
 Defective
 
