@@ -22,7 +22,8 @@ On Spell's world, our SRV2 (non-hosing version) achieved **98% accuracy** or an 
   3s - 10    
 
 On Spell's world, our SRV2+ achieved **100% accuracy**.
-Performance History:
+Performance History: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+SVR2+ is also known as Toyota_Corolla_
 
 On Depue's world, our SRV2 achieved **100% accuracy** or an average of 8.0 over 125 trials.   
 20 Trial Performance History (**perfect**): [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]   
