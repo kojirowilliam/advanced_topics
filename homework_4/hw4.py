@@ -490,7 +490,16 @@ class Model_Agent(Agent):
             self.cardinal_action = str(movement_decrypt[self.agent_last_successful][self.action])
 
     def mapping(self, agent_percepts):
-        '''agent tries to construct a map of the world based on past experience'''
+        '''
+        Agent constructs a map of the world based on past experience
+        Parameters
+        ----------
+        agent_percepts
+
+        Returns
+        -------
+        list of what the agent thinks the world is
+        '''
         if self.cardinal_action == "right":  # agent moves right
             if agent_percepts[1] != "bump":  # agent has not ran into a wall
                 self.agent_col += 1  # collumn variable changed
@@ -557,7 +566,7 @@ class Model_Agent(Agent):
         coords = [self.agent_row, self.agent_col]  # coordinates of agent
         if self.has_visited(coords[0], coords[1]):
             if self.antiloop.count([coords]) >= 3:  # method of tracking loops only works if agent has visited a square at least 3 times
-                loop_spots = [i for i in range(len(self.antiloop)) if self.antiloop[i] == [coords]][-2:]  # makes list of indexes of every time the agent has previously been in its current square (only takes the last 2 as only 2 are needed)
+                loop_spots = [i for i in range(len(self.antiloop)) if self.antiloop[i] == [coords]][-3:-1]  # makes list of indexes of every time the agent has previously been in its current square (only takes the last 2 as only 2 are needed)
                 if self.antiloop[loop_spots[0] + 1] == self.antiloop[loop_spots[1] + 1]:  # if the move directly after each of the previous visits is the same then the agent might be stuck in a loop
                     self.antiloop = []  # list keeping track of previous positions is wiped so the previous if/else statements don't keep checking the same occurences
                     return True
@@ -1207,7 +1216,7 @@ if __name__ == '__main__':
     steps = 0
     run = True
     vacuum_world = Normal_Vacuum_Environment()
-    vacuum_world.create_world(spell)
+    vacuum_world.create_world(depue)
     print(f"Initial State: {vacuum_world}")
     roomba = Model_Agent()
     while run:
