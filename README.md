@@ -1,11 +1,11 @@
-***Note to Dr. Spell***
+***Note to Dr. Spell***    
 *We submitted a completely finished version to you. Still, we're going to continue to work on the project and make it better on the after_turn_in branch. We'd like for you to check that out because it will have better code, but the master branch will remain unchanged.*
 
 # Homework 4
 
 The basic idea behind our agents is that they face a certain direction and will only go forward and right (relative to the direction they face). This means that the agents stick to walls and spiral inward to explore a world.
 
-Important Note!!!
+Important Note!!!    
 Our implementation means that Agents **DO NOT KNOW THEIR CARDINAL DIRECTION** all of their movements are relative! Why would a Roomba know if it's pointing up or down, left or right, all it knows are percepts and movements. We're doing this to *cough cough* retain our integrity to the project *cough cough* not because it allows us to better navigate our enviornment.
 
 **Toyota Corolla Agent (SRV2):**    
