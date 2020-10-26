@@ -502,28 +502,28 @@ class Model_Agent(Agent):
         list of what the agent thinks the world is
         '''
         if self.cardinal_action == "right":  # agent moves right
-            if agent_percepts[1] != "bump":  # agent has not ran into a wall
+            if str(agent_percepts[1]) != "bump":  # agent has not ran into a wall
                 self.agent_col += 1  # collumn variable changed
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new square marked as empty
-            else:  # agent has ran into wall
+            if str(agent_percepts[1]) == "bump":  # agent has ran into wall
                 self.world[self.agent_row][self.agent_col + 1] = 2  # square to the right of the agent marked as wall
         if self.cardinal_action == "left":  # agent moves left
-            if agent_percepts[1] != "bump":  # agent has not ran into wall
+            if str(agent_percepts[1]) != "bump":  # agent has not ran into wall
                 self.agent_col -= 1  # collumn variable changed appropriately
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
-            else:  # agent has hit a wall
+            if str(agent_percepts[1]) == "bump":  # agent has hit a wall
                 self.world[self.agent_row][self.agent_col - 1] = 2  # square to the left of agent marked as wall
         if self.cardinal_action == "up":  # agent moves up
-            if agent_percepts[1] != "bump":  # agent has not hit a wall
+            if str(agent_percepts[1]) != "bump":  # agent has not hit a wall
                 self.agent_row -= 1  # row variable decreased
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
-            else:  # agent has encountered a wall
+            if str(agent_percepts[1]) == "bump":  # agent has encountered a wall
                 self.world[self.agent_row - 1][self.agent_col] = 2  # square directly above agent marked as wall
         if self.cardinal_action == "down":  # agent moves down
-            if agent_percepts[1] != "bump":  # agent does not hit wall
+            if str(agent_percepts[1]) != "bump":  # agent does not hit wall
                 self.agent_row += 1
                 self.world[self.agent_row][self.agent_col] = 1
-            else:  # agent has encountered wall
+            if str(agent_percepts[1]) == "bump":  # agent has encountered wall
                 self.world[self.agent_row + 1][self.agent_col] = 2  # square directly below agent marked as wall
 
     def get_pos_value(self, x, y):
