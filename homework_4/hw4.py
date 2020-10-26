@@ -654,21 +654,17 @@ class Model_Agent(Agent):
             "suck": "right"
         }
 
-        dirt_percept = self.percepts[-2]
-        bump_percept = self.percepts[-1]
+        dirt_percept = self.percepts[-2] # The second to last percept is the current dirt percept
+        bump_percept = self.percepts[-1] # The last percept is the current bump percept
         print("-     Agent's POV     -")
         print(f"Dirt Percept: {dirt_percept}")
         print(f"Bump Percept: {bump_percept}")
         print(f"Last Action: {self.action}")
 
-        if dirt_percept == "dirty":  # if dirty
-            if bump_percept == "bump":
-                print("IM HOSING HOSING HOSING HOSING ")
-                self.action = "hose"  # suck
-                self.performance += 1  # update your personal score
+        if dirt_percept == "dirty" and not bump_percept == "bump":  # if dirty
             print("IM SUCKING SUCKING SUCKING SUCKING ")
-            self.action = "suck"  # suck
-            self.performance += 1  # update your personal score
+            self.action = "suck" # suck
+            self.performance += 1 # update your personal score
         else:
             if bump_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
                 self.action = rules_dict.get(self.action)
@@ -676,11 +672,8 @@ class Model_Agent(Agent):
                 print(self.action)
             else:  # we haven't bumped into anything, so try to move right
                 print("Not Bumped - NORMAL ACTION")
-                # store last successful action
-
-                if self.loop_tracker():  # check for multiple loops
-                    # self.action = "right"
-                    self.action = reverse_dict.get(self.action)  # turn around and try to attach to a inside/outside wall
+                if self.loop_tracker(): # random case to help us get to harder-to-reach areas
+                    self.action = reverse_dict.get(self.action) # turn around and try to attach to a inside/outside wall
                 else:
                     self.action = "right"
 
@@ -688,10 +681,6 @@ class Model_Agent(Agent):
 
             if self.action == "error":  # we've tried to move everywhere and nothing worked, throw error
                 raise AttributeError("Roomba is stuck in a hole, no possible movements")
-
-        self.agent_last_successful = self.cardinal_action
-        self.interpret_cardinal_action()
-        self.mapping(self.percepts)
 
         return self.action
 
@@ -1230,8 +1219,8 @@ def optimize():
         test_steps = 0
         test_run = True
         test_vacuum_world = Normal_Vacuum_Environment()
-        test_vacuum_world.create_world(spell)
-        test_roomba = Toyota_Corolla_Agent()
+        test_vacuum_world.create_world(meister)
+        test_roomba = Model_Agent()
         while test_run:
             if test_steps == test_step_max:
                 test_run = False
