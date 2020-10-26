@@ -74,9 +74,9 @@ SRV2
 Model_Agent
 
 - [x] Rules
-- [ ] Mapping
-- [ ] Loop Checking
-- [ ] Explanation
+- [x] Mapping
+- [x] Loop Checking
+- [x] Explanation
 - [ ] Simulation Data
 
 SRV2+

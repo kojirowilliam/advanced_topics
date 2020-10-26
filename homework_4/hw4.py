@@ -500,27 +500,36 @@ class Model_Agent(Agent):
             self.cardinal_action = str(movement_decrypt[self.agent_last_successful][self.action])
 
     def mapping(self, agent_percepts):
-        '''agent tries to construct a map of the world based on past experience'''
+        '''
+        Agent constructs a map of the world based on past experience
+        Parameters
+        ----------
+        agent_percepts
+
+        Returns
+        -------
+        list of what the agent thinks the world is
+        '''
         if self.cardinal_action == "right":  # agent moves right
-            if agent_percepts[1] != "bump":  # agent has not ran into a wall
+            if str(agent_percepts[1]) == "clean" or str(agent_percepts[1]) == "dirty":  # agent has not ran into a wall
                 self.agent_col += 1  # collumn variable changed
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new square marked as empty
             else:  # agent has ran into wall
                 self.world[self.agent_row][self.agent_col + 1] = 2  # square to the right of the agent marked as wall
         if self.cardinal_action == "left":  # agent moves left
-            if agent_percepts[1] != "bump":  # agent has not ran into wall
+            if str(agent_percepts[1]) == "clean" or str(agent_percepts[1]) == "dirty":  # agent has not ran into wall
                 self.agent_col -= 1  # collumn variable changed appropriately
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
             else:  # agent has hit a wall
                 self.world[self.agent_row][self.agent_col - 1] = 2  # square to the left of agent marked as wall
         if self.cardinal_action == "up":  # agent moves up
-            if agent_percepts[1] != "bump":  # agent has not hit a wall
+            if str(agent_percepts[1]) == "clean" or str(agent_percepts[1]) == "dirty":  # agent has not hit a wall
                 self.agent_row -= 1  # row variable decreased
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
             else:  # agent has encountered a wall
                 self.world[self.agent_row - 1][self.agent_col] = 2  # square directly above agent marked as wall
         if self.cardinal_action == "down":  # agent moves down
-            if agent_percepts[1] != "bump":  # agent does not hit wall
+            if str(agent_percepts[1]) == "clean" or str(agent_percepts[1]) == "dirty":  # agent does not hit wall
                 self.agent_row += 1
                 self.world[self.agent_row][self.agent_col] = 1
             else:  # agent has encountered wall
@@ -567,7 +576,7 @@ class Model_Agent(Agent):
         coords = [self.agent_row, self.agent_col]  # coordinates of agent
         if self.has_visited(coords[0], coords[1]):
             if self.antiloop.count([coords]) >= 3:  # method of tracking loops only works if agent has visited a square at least 3 times
-                loop_spots = [i for i in range(len(self.antiloop)) if self.antiloop[i] == [coords]][-2:]  # makes list of indexes of every time the agent has previously been in its current square (only takes the last 2 as only 2 are needed)
+                loop_spots = [i for i in range(len(self.antiloop)) if self.antiloop[i] == [coords]][-3:-1]  # makes list of indexes of every time the agent has previously been in its current square (only takes the last 2 as only 2 are needed)
                 if self.antiloop[loop_spots[0] + 1] == self.antiloop[loop_spots[1] + 1]:  # if the move directly after each of the previous visits is the same then the agent might be stuck in a loop
                     self.antiloop = []  # list keeping track of previous positions is wiped so the previous if/else statements don't keep checking the same occurences
                     return True
