@@ -459,19 +459,25 @@ class Model_Agent(Agent):
     ----------
     percepts : list
         tells whether the agent has bumped into a wall, whether the ground/wall is clean
+
     Methods
     -------
     agent_type()
         returns agent name, used for agent movement types
-    
+    prepmap()
+        Prepares the list that will contain the map for mapping to begin.
+    interpret_cardinal_action
+        Converts the relative actions that the agent outputs into cardinal actions for the mapping function
+    mapping()
+        tries to construct a roomba based understanding of the environment
+    get_pos_value()
+        Checks the value of a given square in the world (relative to starting position)
+    has_visited()
+        Checks whether the agent has visited a certain square
+    loop_tracker()
+        Watches for possible loops the agent could be stuck in
     rules()
         returns an action based on the perception of the environment from the perspective of the agent.
-    mapping()
-        tries to construct a roomba based understanding of the enviornmetn
-    virtual bump check()
-        checks if agent will virtually bump into a virtual wall
-    virtual_rules()
-        runs the rules function recursively to find rules that apply to virtual worlds
     '''
 
     def __init__(self):
@@ -533,6 +539,7 @@ class Model_Agent(Agent):
     def mapping(self, agent_percepts):
         '''
         Agent constructs a map of the world based on past experience
+
         Parameters
         ----------
         agent_percepts : list
@@ -567,6 +574,7 @@ class Model_Agent(Agent):
     def get_pos_value(self, x, y):
         '''
         This checks the value of a given square in the world (relative to starting position)
+
         Parameters
         ----------
         x : int
@@ -580,16 +588,20 @@ class Model_Agent(Agent):
     def has_visited(self, x, y):
         '''
         Checks whether the agent has visited a certain square
+
         Parameters
         ----------
-        x
-        y
+        x : int
+            The x position of where you want to check.
+        y : int
+            The y position of where you want to check.
 
         Returns
         -------
         bool
-            Returns true if the
+            Returns true if the agent hasn't visited the position
         '''
+
         if self.world[x][y] != '-':
             return True
         else:
@@ -598,10 +610,12 @@ class Model_Agent(Agent):
     def loop_tracker(self):
         '''
         Watches for possible loops the agent could be stuck in
+
         Returns
         -------
         True/False
         '''
+
         coords = [self.agent_row, self.agent_col]  # coordinates of agent
         if self.has_visited(coords[0], coords[1]):
             if self.antiloop.count([coords]) >= 3:  # method of tracking loops only works if agent has visited a square at least 3 times
