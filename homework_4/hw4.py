@@ -263,7 +263,8 @@ class Toyota_Corolla_Agent_Plus(Agent):
             "right": "forward",
             "forward": "left",
             "left": "back",
-            "back": "error"
+            "back": "error",
+            "hose": "right"
         }
 
         reverse_dict = {
@@ -274,7 +275,8 @@ class Toyota_Corolla_Agent_Plus(Agent):
             "forward": "back",
             "left": "right",
             "back": "forward",
-            "suck": "right"
+            "suck": "right",
+            "hose": "right"
         }
 
         dirt_percept = self.percepts[-2]
@@ -846,6 +848,8 @@ class Vacuum_Environment(ABC):
         agent.set_percepts(self.agent_percepts_buffer)
         self.agent_percepts_buffer = []
 
+        self.hose_percept = False
+
     def agent_dirt_sensor(self, agent):
         '''
         Adds and sets that inside of the agent. Then, it calls agent.rules() to get the
@@ -991,6 +995,7 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
             agent_last_movement : Agent's most recent successful cardinal action (action which didn't result in bump)
             agent_action : Resultant Decrypted Action
         '''
+
         self.agent_action_relative = agent.rules()
         if self.agent_action_relative != "suck" and self.agent_action_relative != "hose":
             print("_____ Interpreting Agent Action _____")
@@ -1016,8 +1021,6 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
         Returns
             position : [y coordinate, x coordinate]
         '''
-
-        self.hose_percept = False
 
         print(f"Test Position: {test_position}")
         if 0 <= test_position[0] < 6 and 0 <= test_position[1] < 7:
