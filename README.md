@@ -1,6 +1,12 @@
+***Note to Dr. Spell***
+*We submitted a completely finished version to you. Still, we're going to continue to work on the project and make it better on the after_turn_in branch. We'd like for you to check that out because it will have better code, but the master branch will remain unchanged.*
+
 # Homework 4
 
 The basic idea behind our agents is that they face a certain direction and will only go forward and right (relative to the direction they face). This means that the agents stick to walls and spiral inward to explore a world.
+
+Important Note!!!
+Our implementation means that Agents **DO NOT KNOW THEIR CARDINAL DIRECTION** all of their movements are relative! Why would a Roomba know if it's pointing up or down, left or right, all it knows are percepts and movements. We're doing this to *cough cough* retain our integrity to the project *cough cough* not because it allows us to better navigate our enviornment.
 
 **Toyota Corolla Agent (SRV2):**    
 If the agent has bumped in the last action then it will try to move in each direction until there is no bump. If it was not bumped in the last action, it will move right, randomness is added to make sure the agent will not get stuck repeating the same actions. We called this agent the Toyota Corolla Agent because we're 99% sure it's a reflex agent under your specifications, just that the variable that we use to return our action, since it isn't reset, is used to find a next action. Because we use our last action to decide our next one, we wanted to air on the side of safety and call it a "hybrid" or Toyota Corolla agent. We'd like for you to consider it as a reflex agent because it is so simple and we want the clout for making a perfect reflex agent.   
