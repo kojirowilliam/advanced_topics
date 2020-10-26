@@ -285,9 +285,14 @@ class Toyota_Corolla_Agent_Plus(Agent):
         print(f"Last Action: {self.action}")
 
         if dirt_percept == "dirty":  # if dirty
-            print("IM SUCKING SUCKING SUCKING SUCKING ")
-            self.action = "suck" # suck
-            self.performance += 1 # update your personal score
+            if bump_percept == "bump":
+                print("IM HOSING HOSING HOSING HOSING ")
+                self.action = "hose"  # suck
+                self.performance += 1  # update your personal score
+            else:
+                print("IM SUCKING SUCKING SUCKING SUCKING ")
+                self.action = "suck" # suck
+                self.performance += 1 # update your personal score
         else:
             if bump_percept == "bump":  # okay, we tried to move and we hit something, let's take our last action and use it to find a new one
                 self.action = rules_dict.get(self.action)
@@ -352,6 +357,10 @@ class Simple_Agent(Agent):
         print(f"Last Action: {self.action}")
 
         if dirt_percept == "dirty":  # if dirty
+            if bump_percept == "bump":
+                print("IM HOSING HOSING HOSING HOSING ")
+                self.action = "hose"  # suck
+                self.performance += 1  # update your personal score
             print("IM SUCKING SUCKING SUCKING SUCKING ")
             self.action = "suck"  # suck
             self.performance += 1  # update your personal score
@@ -627,6 +636,10 @@ class Model_Agent(Agent):
         print(f"Last Action: {self.action}")
 
         if dirt_percept == "dirty":  # if dirty
+            if bump_percept == "bump":
+                print("IM HOSING HOSING HOSING HOSING ")
+                self.action = "hose"  # suck
+                self.performance += 1  # update your personal score
             print("IM SUCKING SUCKING SUCKING SUCKING ")
             self.action = "suck"  # suck
             self.performance += 1  # update your personal score
@@ -708,7 +721,7 @@ class Vacuum_Environment(ABC):
             Keeps track of whether the environment it is currently in is already won.
         score : int
             Keeps track of the number of times the agent has completed the environments' tasks.
-        agent_percepts : list
+        agent_percepts_history : list
             the complete history of percepts of the agent
         agent_percepts_buffer : 2-item list
             the two most recent percepts of the agent
@@ -724,7 +737,7 @@ class Vacuum_Environment(ABC):
         self.agent_action_relative = "right"
         self.environment_won = False
         self.score = 0
-        self.agent_percepts = []
+        self.agent_percepts_history = []
         self.agent_percepts_buffer = []
         self.agent_position = []
         self.bump = False
@@ -835,14 +848,15 @@ class Vacuum_Environment(ABC):
 
         print("-     Dirt Percept      -")
         print(f"Agent Is In: {self.world[self.agent_position[0]][self.agent_position[1]]}")
+        print(f"Hose Percept Is: {self.hose_percept}")
 
-        if str(self.world[self.agent_position[0]][self.agent_position[1]]) == "DIRTY":
+        if str(self.world[self.agent_position[0]][self.agent_position[1]]) == "DIRTY" or self.hose_percept:
             print("Agent is passed Dirty percept")
-            self.agent_percepts.append("dirty")
+            self.agent_percepts_history.append("dirty")
             self.agent_percepts_buffer.append("dirty")
         else:
             print("Agent is passed Clean percept")
-            self.agent_percepts.append("clean")
+            self.agent_percepts_history.append("clean")
             self.agent_percepts_buffer.append("clean")
 
     def agent_bump_sensor(self, agent):
@@ -855,11 +869,11 @@ class Vacuum_Environment(ABC):
         '''
 
         if self.bump:
-            self.agent_percepts.append("bump")
+            self.agent_percepts_history.append("bump")
             self.agent_percepts_buffer.append("bump")
             self.bump = False
         else:
-            self.agent_percepts.append("no bump")
+            self.agent_percepts_history.append("no bump")
             self.agent_percepts_buffer.append("no bump")
 
     def change_environment(self):
@@ -883,6 +897,18 @@ class Vacuum_Environment(ABC):
             else:
                 print("ERROR - TRIED TO SUCK IN CLEAN")
                 error("TRIED TO SUCK IN CLEAN")
+        elif self.agent_action == "hose":
+            hose_movement_vector = string_movement_to_vector.get(self.agent_last_movement)
+            print(f"Hose Movement_vector: {hose_movement_vector}")
+            print(f"Agent_position: {self.agent_position}")
+            hose_test_position = [self.agent_position[0] + hose_movement_vector[0], self.agent_position[1] + hose_movement_vector[1]]
+            if 0 <= hose_test_position[0] < 6 and 0 <= hose_test_position[1] < 7:
+                if "DIRTY" in str(self.world[hose_test_position[0]][hose_test_position[1]]):
+                    self.world[hose_test_position[0]][hose_test_position[1]] = wall_tile
+                    self.score += 1
+                else:
+                    print("ERROR - TRIED TO HOSE CLEAN WALL")
+                    error("TRIED TO HOSE CLEAN WALL")
         else:
             # print(self.agent_action)
             movement_vector = string_movement_to_vector.get(self.agent_action)
@@ -953,11 +979,11 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
         ----------
         Variables
             agent_action_relative : Agent's most recent passed back rules
-            agent_last_movement : Agent's most recent successful action (action which didn't result in bump)
+            agent_last_movement : Agent's most recent successful cardinal action (action which didn't result in bump)
             agent_action : Resultant Decrypted Action
         '''
         self.agent_action_relative = agent.rules()
-        if self.agent_action_relative != "suck":
+        if self.agent_action_relative != "suck" and self.agent_action_relative != "hose":
             print("_____ Interpreting Agent Action _____")
             print(f"Relative Action: {self.agent_action_relative}")
             print(f"Interpreted Bearing Action: {self.agent_last_movement}")
@@ -976,23 +1002,25 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
             old_position : the current agent position
         ----------
         Variables
-            agent_last_movement : Agent's most recent successful action (action which didn't result in bump)
+            agent_last_movement : Agent's most recent successful cardinal action (action which didn't result in bump)
         ----------
         Returns
             position : [y coordinate, x coordinate]
         '''
 
+        self.hose_percept = False
+
         print(f"Test Position: {test_position}")
         if 0 <= test_position[0] < 6 and 0 <= test_position[1] < 7:
-            if str(self.world[test_position[0]][test_position[1]]) != "WALL" and str(self.world[test_position[0]][test_position[1]]) != "OUT":
+            if str(self.world[test_position[0]][test_position[1]]) != "WALL" and str(self.world[test_position[0]][test_position[1]]) != "OUT" and not '[WALL, DIRTY]' in str(self.world[test_position[0]][test_position[1]]):
                 self.agent_last_movement = self.agent_action
                 print(f"Success: Test Position Valid, Returning : {test_position}")
                 return test_position
             else:
                 print(f"Failure: Bumped Into WALL, Returning : {old_position}")
-                if "DIRTY" in str(self.world[test_position[0]][test_position[1]]):
-                    self.agent_percepts.append("dirty wall")
-                    self.agent_percepts_buffer.append("dirty wall")
+                if "DIRTY" in str(self.world[test_position[0]][test_position[1]]) and "WALL" in str(self.world[test_position[0]][test_position[1]]):
+                    print("BEEEE BOOOO BEEE BOOO")
+                    self.hose_percept = True
                 self.bump = True
                 return old_position
         else:
@@ -1066,6 +1094,10 @@ class Simple_Vacuum_Environment(Vacuum_Environment):
             else:
                 print(f"Failure: Bumped Into WALL, Returning : {old_position}")
                 self.bump = True
+                if "DIRTY" in str(self.world[test_position[0]][test_position[1]]):
+                    self.hose_percept = True
+                else:
+                    self.hose_percept = False
                 return old_position
         else:
             print(f"Failure: Bumped Into OUT OF BOUNDS, Returning : {old_position}")
@@ -1145,6 +1177,10 @@ class Defective_Vacuum_Environment(Vacuum_Environment):
                 return test_position
             else:
                 print(f"Failure: Bumped Into WALL, Returning : {old_position}")
+                if "DIRTY" in str(self.world[test_position[0]][test_position[1]]):
+                    self.hose_percept = True
+                else:
+                    self.hose_percept = False
                 self.bump = True
                 return old_position
         else:
@@ -1210,7 +1246,7 @@ if __name__ == '__main__':
     vacuum_world = Normal_Vacuum_Environment()
     vacuum_world.create_world(spell)
     print(f"Initial State: {vacuum_world}")
-    roomba = Model_Agent()
+    roomba = Toyota_Corolla_Agent_Plus()
     while run:
         if steps == step_max:
             run = False
@@ -1236,4 +1272,4 @@ if __name__ == '__main__':
     else:
         print("\nThe roomba has not completed the task(s) in the environment.")
 
-    optimize()
+    # optimize()
