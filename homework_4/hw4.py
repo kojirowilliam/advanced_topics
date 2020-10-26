@@ -369,7 +369,7 @@ class Defect_Agent(Agent):
     '''
     A class that represents our defective agent.
     Since you said that it has a 25% of leaking dirt, all we're doing is staying in the same place and sucking.
-    This will mean we're making our optimizing our performance by abusing our faults.
+    This will mean we're optimizing our performance by abusing our faults.
 
     This is a kind of exploit, more because our Toyota Corolla works great even with defects.
     If you don't like how we're maximizing our utiliity here, you can just use the toyota corolla with the defect env.
@@ -495,25 +495,25 @@ class Model_Agent(Agent):
             if agent_percepts[1] != "bump":  # agent has not ran into a wall
                 self.agent_col += 1  # collumn variable changed
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new square marked as empty
-            if agent_percepts[1] == "bump":  # agent has ran into wall
+            else:  # agent has ran into wall
                 self.world[self.agent_row][self.agent_col + 1] = 2  # square to the right of the agent marked as wall
         if self.cardinal_action == "left":  # agent moves left
             if agent_percepts[1] != "bump":  # agent has not ran into wall
                 self.agent_col -= 1  # collumn variable changed appropriately
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
-            if agent_percepts[1] == "bump":  # agent has hit a wall
+            else:  # agent has hit a wall
                 self.world[self.agent_row][self.agent_col - 1] = 2  # square to the left of agent marked as wall
         if self.cardinal_action == "up":  # agent moves up
             if agent_percepts[1] != "bump":  # agent has not hit a wall
                 self.agent_row -= 1  # row variable decreased
                 self.world[self.agent_row][self.agent_col] = 1  # agent's new position marked as empty
-            if agent_percepts[1] == "bump":  # agent has encountered a wall
+            else:  # agent has encountered a wall
                 self.world[self.agent_row - 1][self.agent_col] = 2  # square directly above agent marked as wall
         if self.cardinal_action == "down":  # agent moves down
             if agent_percepts[1] != "bump":  # agent does not hit wall
                 self.agent_row += 1
                 self.world[self.agent_row][self.agent_col] = 1
-            if agent_percepts[1] == "bump":  # agent has encountered wall
+            else:  # agent has encountered wall
                 self.world[self.agent_row + 1][self.agent_col] = 2  # square directly below agent marked as wall
 
     def get_pos_value(self, x, y):
@@ -725,8 +725,9 @@ class Vacuum_Environment(ABC):
         self.score = 0
         self.agent_percepts = []
         self.agent_percepts_buffer = []
-        self.agent_position = [3, 4]
+        self.agent_position = []
         self.bump = False
+        self.clean_indexes = []
         self.defective = False
         self.leak_dirt = False
         self.hose_percept = False
@@ -736,7 +737,7 @@ class Vacuum_Environment(ABC):
         Sets the 'world' class variable representing the different rooms in the environment.
         The 'world' class variable is an integer list representing the environment and the objects within each room:
         nothing (0), clean (1), wall (2), dirty (3)
-
+        Sets agent to a random spawn location
         Asserts
         -------
             If yamada is None, assert.
@@ -749,6 +750,12 @@ class Vacuum_Environment(ABC):
         assert world_parameter is not None, "Make sure that you have a variable name with your lastname as the configuration " \
                                    "of your world"
         self.world = read_world(world_parameter)
+        self.clean_indexes=[]
+        for row in range(len(self.world)):
+            for element in range(row):
+                if str(self.world[row][element])=="CLEAN":
+                    self.clean_indexes.append([row,element])
+        self.agent_position=self.clean_indexes[randint(0,len(self.clean_indexes)-1)]
         seed(self.world[0][0], 2)  # random seed based on world
 
     def create_dirt(self, number_of_dirt):
@@ -982,6 +989,9 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
                 return test_position
             else:
                 print(f"Failure: Bumped Into WALL, Returning : {old_position}")
+                if "DIRTY" in str(self.world[test_position[0]][test_position[1]]):
+                    self.agent_percepts.append("dirty wall")
+                    self.agent_percepts_buffer.append("dirty wall")
                 self.bump = True
                 return old_position
         else:
@@ -1197,9 +1207,9 @@ if __name__ == '__main__':
     steps = 0
     run = True
     vacuum_world = Normal_Vacuum_Environment()
-    vacuum_world.create_world(depue)
+    vacuum_world.create_world(spell)
     print(f"Initial State: {vacuum_world}")
-    roomba = Toyota_Corolla_Agent()
+    roomba = Model_Agent()
     while run:
         if steps == step_max:
             run = False
