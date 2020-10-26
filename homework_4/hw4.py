@@ -59,8 +59,6 @@ class Agent(ABC):
     -------
     set_percepts(agent_percepts)
         sets the agent's perception of the environment as the class variable 'percepts'
-    set_random_change(x)
-        Sets a random number
     rules()
         An abstract method used by the subclasses to define the rules of the agent.
     '''
@@ -73,22 +71,21 @@ class Agent(ABC):
             A string list of the history of perceptions from the agent from the environment. The last strings on the
             list are the current percepts of the agent.
         '''
+
         self.percepts = percepts
         self.performance = 0
         self.action = "right"
         self.random_chance = 10
-
-    def set_random_change(self, x):
-        self.random_chance = x
 
     def set_percepts(self, agent_percepts):
         '''
         Sets the percepts class variable of the environment.
         Parameters
         ----------
-        percepts : list
+        agent_percepts : list
             A list of strings that represents the history of perceptions from the Agent's perspective of the environment
         '''
+
         self.percepts = agent_percepts
 
     @abstractmethod
@@ -127,8 +124,8 @@ class Toyota_Corolla_Agent(Agent):
         -------
         agent_type : str
             A string representing the type of agent:
-
         '''
+
         return "Reflex_Agent"
 
     def rules(self):
@@ -207,6 +204,7 @@ class Toyota_Corolla_Agent(Agent):
 
         return self.action
 
+
 class Toyota_Corolla_Agent_Plus(Agent):
     '''
     A class that represents our first Reflex Agent in the Environment.
@@ -229,9 +227,10 @@ class Toyota_Corolla_Agent_Plus(Agent):
 
         Returns
         -------
-            str
-
+        str
+            A string representing the type of agent.
         '''
+
         return "Reflex_Agent"
 
     def rules(self):
@@ -326,6 +325,15 @@ class Simple_Agent(Agent):
     '''
 
     def agent_type(self):
+        '''
+        Returns the type of agent.
+
+        Returns
+        -------
+        str
+            A string representing the type of agent.
+        '''
+
         return "Simple_Agent"
 
     def rules(self):
@@ -388,6 +396,15 @@ class Defect_Agent(Agent):
     '''
 
     def agent_type(self):
+        '''
+        Returns the type of agent.
+
+        Returns
+        -------
+        str
+            A string representing the type of agent.
+        '''
+
         return "Simple_Agent"
 
     def rules(self):
@@ -456,6 +473,15 @@ class Model_Agent(Agent):
         super().__init__()
 
     def agent_type(self):
+        '''
+        Returns the type of agent.
+
+        Returns
+        -------
+        str
+            A string representing the type of agent.
+        '''
+
         return "Model_Agent"
 
     def prepmap(self, x, y):
@@ -466,13 +492,17 @@ class Model_Agent(Agent):
 
         Parameters
         ----------
-        x
-        y
+        x : int
+            The x starting position of the agent in the agent's representation of the world.
+        y : int
+            The y starting position of the agent in the agent's representation of the world.
 
         Returns
         -------
-        2d array of '-' with dimensions sufficient to contain the environment
+        self.world : nested list
+            Nested list of '-' with dimensions sufficient to contain the environment.
         '''
+
         row = list('-' * ((2 * x) - 1))
         for i in range(((2 * y) - 1)):
             self.world.append(row[:])
@@ -483,10 +513,8 @@ class Model_Agent(Agent):
     def interpret_cardinal_action(self):
         '''
         Converts the relative actions that the agent outputs into cardinal actions for the mapping function
-        Returns
-        -------
-        cardinal direction, string
         '''
+
         if self.action != "suck":
             self.cardinal_action = str(movement_decrypt[self.agent_last_successful][self.action])
 
@@ -495,12 +523,10 @@ class Model_Agent(Agent):
         Agent constructs a map of the world based on past experience
         Parameters
         ----------
-        agent_percepts
-
-        Returns
-        -------
-        list of what the agent thinks the world is
+        agent_percepts : list
+            A list of strings that represents the history of perceptions from the Agent's perspective of the environment
         '''
+
         if self.cardinal_action == "right":  # agent moves right
             if str(agent_percepts[1]) == "clean" or str(agent_percepts[1]) == "dirty":  # agent has not ran into a wall
                 self.agent_col += 1  # collumn variable changed
@@ -531,13 +557,12 @@ class Model_Agent(Agent):
         This checks the value of a given square in the world (relative to starting position)
         Parameters
         ----------
-        x
-        y
-
-        Returns
-        -------
-        -,0,1,2,3
+        x : int
+            The x position of where you want to check.
+        y : int
+            The y position of where you want to check.
         '''
+
         return self.world[x][y]
 
     def has_visited(self, x, y):
@@ -550,7 +575,8 @@ class Model_Agent(Agent):
 
         Returns
         -------
-        True/False
+        bool
+            Returns true if the
         '''
         if self.world[x][y] != '-':
             return True
@@ -718,7 +744,7 @@ class Vacuum_Environment(ABC):
         score : int
             Keeps track of the number of times the agent has completed the environments' tasks.
         agent_percepts : list
-            the complete history of percepts of the agent
+            A list of strings that represents the history of perceptions from the Agent's perspective of the environment
         agent_percepts_buffer : 2-item list
             the two most recent percepts of the agent
         agent_position : 2-item list
@@ -856,8 +882,8 @@ class Vacuum_Environment(ABC):
 
     def agent_bump_sensor(self, agent):
         '''
-        Makes the object agent's percepts and sets that inside of the agent. Then, it calls agent.rules() to get the
-        agent's action and sets that equal to the 'agent_action' class variable.
+        Checks to see whether the agent has bumped and sets the the current bump percent in the 'agent_percepts'
+        and agent_percepts_buffer variables inside of the agent class.
         Parameters
         ----------
         agent : Object of Agent class
@@ -988,7 +1014,8 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
             agent_last_movement : Agent's most recent successful action (action which didn't result in bump)
         ----------
         Returns
-            position : [y coordinate, x coordinate]
+            position : list
+                The first element represents the y coordinate and the second represents the x coordinate.
         '''
 
         print(f"Test Position: {test_position}")
