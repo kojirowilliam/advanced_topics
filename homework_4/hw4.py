@@ -268,7 +268,8 @@ class Toyota_Corolla_Agent_Plus(Agent):
 
         reverse_dict = {
             # this makes the roomba turn around
-            # turning around means the roomba's old left is not its right, meaning it will try to stick to a wall that's across from it
+            # turning around means the roomba's old left is not its right, 
+            # meaning it will try to stick to a wall that's across from it 
             "right": "left",
             "forward": "back",
             "left": "right",
