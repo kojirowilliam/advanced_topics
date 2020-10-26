@@ -76,9 +76,6 @@ class Agent(ABC):
         self.action = "right"
         self.random_chance = 10
 
-    def set_random_change(self, x):
-        self.random_chance = x
-
     def set_percepts(self, agent_percepts):
         '''
         Sets the percepts class variable of the environment.
@@ -95,6 +92,7 @@ class Agent(ABC):
         An abstract method used by the subclasses to define the rules of the agent.
         '''
         pass
+
 
 class Toyota_Corolla_Agent(Agent):
     '''
@@ -125,8 +123,8 @@ class Toyota_Corolla_Agent(Agent):
         -------
         agent_type : str
             A string representing the type of agent:
-
         '''
+
         return "Reflex_Agent"
 
     def rules(self):
@@ -470,6 +468,10 @@ class Model_Agent(Agent):
         Converts the relative actions that the agent outputs into cardinal actions for the mapping function
     mapping()
         tries to construct a roomba based understanding of the environment
+    virtual bump check()
+        checks if agent will virtually bump into a virtual wall
+    virtual_rules()
+        runs the rules function recursively to find rules that apply to virtual worlds
     get_pos_value()
         Checks the value of a given square in the world (relative to starting position)
     has_visited()
@@ -609,11 +611,12 @@ class Model_Agent(Agent):
 
     def loop_tracker(self):
         '''
-        Watches for possible loops the agent could be stuck in
+        Watches for possible loops the agent could be stuck in a hole.
 
         Returns
         -------
-        True/False
+        bool
+            Returns true if it is stuck
         '''
 
         coords = [self.agent_row, self.agent_col]  # coordinates of agent
@@ -718,13 +721,34 @@ class Vacuum_Environment(ABC):
     ----------
     world : nested list
         a nested integer list representing the rooms within the vacuum environment as nothing (0), clean (1), wall (2),
-        and dirty (3)
+        and dirty (3).
     agent_action : str
-        the action the agent will do in the environment.
+        the action the agent will do in the environment based in cardinal direction.
+    agent_last_movement : str
+        the last succesful action the agent took in the enviornemnt in cardinal direction.
+    agent_action_relative : str
+        the action the agent took in the enviornment in relative orientation.
     environment_won : bool
         Keeps track of whether the environment it is currently in is already won.
     score : int
         Keeps track of the number of times the agent has completed the environments' tasks.
+    agent_percepts_history : list
+        A list of strings that represents the history of perceptions from the Agent's perspective of the environment.
+    agent_percepts_buffer : list
+        A list of strings that represents the current perceptions of the environment.
+    agent_position : list
+        The position of the agent in [row, collumn]
+    bump : bool
+        Used to communicate cross function in 'bump_percept' to 'change_environment' whether agent has bumped.
+    clean_indexes : list
+        The indexes of clean rooms in the 2D environment.
+    defective : bool
+        Whether the roomba is defective and has a 25% chance to leak dirt.
+    leak_dirt : bool
+        When defective is true, leak_dirt has a 25% chance to be true and cause the next or current clean room dirty.
+    hose_percept : bool
+        Whether to include a percept for dirty walls.
+
     Methods
     -------
     create_world()
@@ -733,11 +757,21 @@ class Vacuum_Environment(ABC):
         Creates number_of_dirt many dirty rooms in random clean rooms in the environment.
     do_kids_create_dirt()
         Randomly creates dirt in a clean room according to the 10% kids creating dirt chance.
+    agent_percept()
+        Runs all the agent percept functions and resets the buffer after checking it.
+    agent_dirt_sensor()
+        Adds and sets that inside of the agent. Then, it calls agent.rules() to get the
+        agent's action and sets that equal to the 'agent_action' class variable.
+    agent_bump_sensor()
+        Makes the object agent's percepts and sets that inside of the agent. Then, it calls agent.rules() to get the
+        agent's action and sets that equal to the 'agent_action' class variable.
     agent_program(agent)
         Makes the object agent's percepts and sets that inside of the agent. Then, it calls agent.rules() to get the
         agent's action and sets that equal to the 'agent_action' class variable.
     change_environment()
         Changes the state of the environment based on the agent_action class variable.
+    update_agent_position()
+        Sets agent's position.
     get_dirt_status()
         Getter for the status of the number of dirty rooms in the room environment.
     __repr__()
@@ -751,25 +785,33 @@ class Vacuum_Environment(ABC):
         ----------
         world : nested list
             a nested integer list representing the rooms within the vacuum environment as nothing (0), clean (1), wall (2),
-            and dirty (3)
+            and dirty (3).
         agent_action : str
-            the action the agent will do in the environment based in cardinal direction
+            the action the agent will do in the environment based in cardinal direction.
         agent_last_movement : str
-            the last succesful action the agent took in the enviornemnt in cardinal direction
+            the last succesful action the agent took in the enviornemnt in cardinal direction.
         agent_action_relative : str
-            the action the agent took in the enviornment in relative orientation
+            the action the agent took in the enviornment in relative orientation.
         environment_won : bool
             Keeps track of whether the environment it is currently in is already won.
         score : int
             Keeps track of the number of times the agent has completed the environments' tasks.
-        agent_percepts : list
-            A list of strings that represents the history of perceptions from the Agent's perspective of the environment
-        agent_percepts_buffer : 2-item list
-            the two most recent percepts of the agent
-        agent_position : 2-item list
-            the position of the agent in [row, collumn]
+        agent_percepts_history : list
+            A list of strings that represents the history of perceptions from the Agent's perspective of the environment.
+        agent_percepts_buffer : list
+            A list of strings that represents the current perceptions of the environment.
+        agent_position : list
+            The position of the agent in [row, collumn]
         bump : bool
-            used to communicate cross function in bump_percept to change_enviornment whether agent has bumped
+            Used to communicate cross function in 'bump_percept' to 'change_environment' whether agent has bumped.
+        clean_indexes : list
+            The indexes of clean rooms in the 2D environment.
+        defective : bool
+            Whether the roomba is defective and has a 25% chance to leak dirt.
+        leak_dirt : bool
+            When defective is true, leak_dirt has a 25% chance to be true and cause the next or current clean room dirty.
+        hose_percept : bool
+            Whether to include a percept for dirty walls.
         '''
 
         self.world = []
@@ -874,7 +916,7 @@ class Vacuum_Environment(ABC):
         agent : Object of Agent class
         '''
         self.agent_dirt_sensor(agent)
-        self.agent_bump_sensor(agent)
+        self.agent_bump_sensor()
         agent.set_percepts(self.agent_percepts_buffer)
         self.agent_percepts_buffer = []
 
@@ -902,13 +944,10 @@ class Vacuum_Environment(ABC):
             self.agent_percepts_history.append("clean")
             self.agent_percepts_buffer.append("clean")
 
-    def agent_bump_sensor(self, agent):
+    def agent_bump_sensor(self):
         '''
-        Makes the object agent's percepts and sets that inside of the agent. Then, it calls agent.rules() to get the
-        agent's action and sets that equal to the 'agent_action' class variable.
-        Parameters
-        ----------
-        agent : Object of Agent class
+        Sets the agent's bump percept for the 'agent_percepts_history' and 'agent_percepts_buffer' class variables of
+        the agent.
         '''
 
         if self.bump:
@@ -962,7 +1001,7 @@ class Vacuum_Environment(ABC):
 
     def update_agent_position(self, position):
         '''
-        Changes agent position
+        Sets agent's position
 
         Parameters
         ----------
@@ -1001,14 +1040,16 @@ class Normal_Vacuum_Environment(Vacuum_Environment):
     """
     A class representing a vacuum environment for the Model_Agent with nothing (0), clean (1), wall (2), dirty (3)
 
-    Different than normal_vaccuum_enviornment in the way that it records agent movement to figure out where the agent has rotated to,
-    similar to how roombas work, depending on whether it bumps or succeeds.
+    Different than normal_vaccuum_enviornment in the way that it records agent movement to figure out where the agent
+    has rotated to, similar to how roombas work, depending on whether it bumps or succeeds.
 
     ...
-    Attributes
-    ----------
     Methods
     -------
+    agent_update()
+        Updates the agent and interprets the agent movement.
+    check_bounds()
+        Checks whether the Agent movement will result in a Bump or result in movement.
     """
 
     def agent_update(self, agent):
@@ -1085,10 +1126,12 @@ class Simple_Vacuum_Environment(Vacuum_Environment):
     Normal vaccuum enviiornment only changes agent headiing if it doesn't bump into anything
 
     ...
-    Attributes
-    ----------
     Methods
     -------
+    agent_update()
+        Updates the agent and interprets the agent movement.
+    check_bounds()
+        Checks whether the Agent movement will result in a Bump or result in movement.
     """
 
     def agent_update(self, agent):
@@ -1161,10 +1204,12 @@ class Defective_Vacuum_Environment(Vacuum_Environment):
     Normal vaccuum enviiornment only changes agent headiing if it doesn't bump into anything
 
     ...
-    Attributes
-    ----------
     Methods
     -------
+    agent_update()
+        Updates the agent and interprets the agent movement.
+    check_bounds()
+        Checks whether the Agent movement will result in a Bump or result in movement.
     """
 
     def agent_update(self, agent):
@@ -1237,6 +1282,9 @@ class Defective_Vacuum_Environment(Vacuum_Environment):
 
 
 def optimize():
+    '''
+    A function used to stress test the agents and environments.
+    '''
     value_list = []
     for y in range(125):
         test_total_score = 0
@@ -1255,14 +1303,25 @@ def optimize():
             test_steps += 1
         value_list.append(test_vacuum_world.score)
     print(value_list[-20:])
-    print(Average(value_list))
-    print(Mode(value_list))
+    print(average(value_list))
+    print(Counter(value_list))
 
-def Average(lst):
+def average(lst):
+    '''
+    Gets the average of elements in a list.
+
+    Parameters
+    ----------
+    lst : list
+        The integer list you want to get the average for every element.
+    Returns
+    -------
+    int
+        The average of the elements in the list.
+    '''
+
     return sum(lst) / len(lst)
 
-def Mode(lst):
-    return Counter(lst)
 
 if __name__ == '__main__':
     '''
