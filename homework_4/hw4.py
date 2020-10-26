@@ -794,14 +794,11 @@ class Vacuum_Environment(ABC):
         The 'world' class variable is an integer list representing the environment and the objects within each room:
         nothing (0), clean (1), wall (2), dirty (3)
         Sets agent to a random spawn location
+
         Asserts
         -------
-            If yamada is None, assert.
+            If world_parameter is None, assert.
         '''
-
-        # TODO:KOJIRO We can import the world configuration in the main loop and then have a parameter called
-        # TODO:KOJIRO world_config that contains the configuration of the world we want to use.
-        # TODO:KOJIRO Replace the assert with logging.
 
         assert world_parameter is not None, "Make sure that you have a variable name with your lastname as the configuration " \
                                    "of your world"
@@ -825,6 +822,7 @@ class Vacuum_Environment(ABC):
         -------
             number_of_dirt cannot be equal to 0
         '''
+
         assert number_of_dirt != 0, "Cannot make 0 dirt"
 
         clean_tile_in_world = False
@@ -863,6 +861,7 @@ class Vacuum_Environment(ABC):
         '''
         Randomly creates dirt in a clean room according to the 10% kids creating dirt chance.
         '''
+
         if randint(0, 10) == 5:
             self.create_dirt(1)
 
