@@ -340,6 +340,7 @@ class Simple_Agent(Agent):
         str
             A string representing the type of agent.
         '''
+
         return "Simple_Agent"
 
     def rules(self):
@@ -414,6 +415,7 @@ class Defect_Agent(Agent):
         str
             A string representing the type of agent.
         '''
+
         return "Simple_Agent"
 
     def rules(self):
@@ -461,6 +463,7 @@ class Model_Agent(Agent):
     -------
     agent_type()
         returns agent name, used for agent movement types
+    
     rules()
         returns an action based on the perception of the environment from the perspective of the agent.
     mapping()
@@ -482,6 +485,15 @@ class Model_Agent(Agent):
         super().__init__()
 
     def agent_type(self):
+        '''
+        Returns the type of agent.
+
+        Returns
+        -------
+        str
+            A string representing the type of agent.
+        '''
+
         return "Model_Agent"
 
     def prepmap(self, x, y):
