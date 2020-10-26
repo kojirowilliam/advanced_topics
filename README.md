@@ -1,6 +1,15 @@
 # Homework 4
 
-Explanation for code needed here.
+The basic idea behind our agents is that they face a certain direction and will only go forward and right (relative to the direction they face). This means that the agents stick to walls and spiral inward to explore a world.
+
+Toyota Corolla Agent (SRV2): Keeps track of past two actions. If the agent has bumped in the last action then it will try to move in each direction until there is no bump. If it was not bumped in the last action, it will move right, randomness is added to make sure the agent will not get stuck repeating the same actions.
+Toyota Corolla Agent Plus (SRV2+): SRV2 with hose action
+
+Simple Agent: Moves left if bumped, forward otherwise, with additional randomness to try to extricate it from loops and holes.
+
+Model Agent: Basic moveset is the same, maps the world as it moves through it and checks if the agent has gotten stuck in a loop. This makes the agent completely deterministic as randomness is not needed to break out of loops.
+
+Defective Agent: This agent has a 25% chance of leaking dirt into its current square with every move. To easily maximize its score, this agent never moves.
 
 Non-deterministic
 
@@ -69,7 +78,7 @@ SRV2
 
 - [x] Rules
 - [x] Percepts
-- [ ] Wiki Explanation
+- [x] Wiki Explanation
 
 Model_Agent
 
@@ -87,4 +96,4 @@ SRV2+
 Defective
 
 - [x] Doc Strings
-- [ ] Wiki Explanation
+- [x] Wiki Explanation
