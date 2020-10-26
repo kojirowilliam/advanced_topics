@@ -184,7 +184,7 @@ class Toyota_Corolla_Agent(Agent):
         print(f"Bump Percept: {bump_percept}")
         print(f"Last Action: {self.action}")
 
-        if dirt_percept == "dirty":  # if dirty
+        if dirt_percept == "dirty" and not bump_percept == "bump":  # if dirty
             print("IM SUCKING SUCKING SUCKING SUCKING ")
             self.action = "suck" # suck
             self.performance += 1 # update your personal score
@@ -1258,7 +1258,7 @@ if __name__ == '__main__':
     steps = 0
     run = True
     vacuum_world = Normal_Vacuum_Environment()
-    vacuum_world.create_world(spell)
+    vacuum_world.create_world(depue)
     print(f"Initial State: {vacuum_world}")
     roomba = Toyota_Corolla_Agent_Plus()
     while run:
@@ -1286,4 +1286,4 @@ if __name__ == '__main__':
     else:
         print("\nThe roomba has not completed the task(s) in the environment.")
 
-    # optimize()
+    optimize()
