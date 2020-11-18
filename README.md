@@ -1,32 +1,38 @@
+***Note to Dr. Spell***    
+*We submitted a completely finished version to you. Still, we're going to continue to work on the project and make it better on the after_turn_in branch. We'd like for you to check that out because it will have better code, but the master branch will remain unchanged.*
+
 # Homework 4
 
 The basic idea behind our agents is that they face a certain direction and will only go forward and right (relative to the direction they face). This means that the agents stick to walls and spiral inward to explore a world.
 
-Toyota Corolla Agent (SRV2):    
+Important Note!!!    
+Our implementation means that Agents **DO NOT KNOW THEIR CARDINAL DIRECTION** all of their movements are relative! Why would a Roomba know if it's pointing up or down, left or right, all it knows are percepts and movements. We're doing this to *cough cough* retain our integrity to the project *cough cough* not because it allows us to better navigate our enviornment.
+
+**Toyota Corolla Agent (SRV2):**    
 If the agent has bumped in the last action then it will try to move in each direction until there is no bump. If it was not bumped in the last action, it will move right, randomness is added to make sure the agent will not get stuck repeating the same actions. We called this agent the Toyota Corolla Agent because we're 99% sure it's a reflex agent under your specifications, just that the variable that we use to return our action, since it isn't reset, is used to find a next action. Because we use our last action to decide our next one, we wanted to air on the side of safety and call it a "hybrid" or Toyota Corolla agent. We'd like for you to consider it as a reflex agent because it is so simple and we want the clout for making a perfect reflex agent.   
 
-This agent is non-deterministic.   
+ This agent is non-deterministic.   
 
-Toyota Corolla Agent Plus (SRV2+):    
+**Toyota Corolla Agent Plus (SRV2+):**   
 SRV2 with hose action. Same logic as Toyota Corolla Agent.   
 
-This agent is non-deterministic.   
+ This agent is non-deterministic.   
 
-Simple Agent:    
+**Simple Agent:**    
 Moves left if bumped, forward otherwise, with additional randomness to try to extricate it from loops and holes. This is a 100% true simple reflex agent. It's really dumb.   
 
-This agent is non-deterministic.   
+ This agent is non-deterministic.   
 
-True Model Agent:    
+**True Model Agent:**    
 Basic moveset is the same, maps the world as it moves through it and checks if the agent has gotten stuck in a loop. This makes the agent completely deterministic as randomness is not needed to break out of loops. This is currently working, just that the loop tracker and mapping is resulting in a lower score than Toyota Corolla Agent. For that reason, we've excluded it from the data collection since it's much less efficient.   
 
-This agent is deterministic.   
+ This agent is deterministic.   
 
-Defective Agent:    
+**Defective Agent:**    
 This agent has a 25% chance of leaking dirt into its current square with every move. To easily maximize its score, this agent never moves. 
 Since you said that it has a 25% of leaking dirt, all we're doing is staying in the same place and sucking. This will mean we're optimizing our performance by abusing our faults. This is a kind of exploit, more because our Toyota Corolla works great even with defects. If you don't like how we're maximizing our utiliity here, you can just use the Toyota Corolla with the defect enviroment.   
 
-This agent is deterministic.   
+ This agent is deterministic.   
 
   **Reflex Simulation Data**   
 
