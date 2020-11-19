@@ -94,8 +94,10 @@ def check_state(state):
     bool
     Returns True if the state is legal and False otherwise.
     '''
+    if state == None:
+        return False
 
-    if state[0][0] < 0 or state[0][1] < 0 or state[1][0] < 0 or state[1][1] < 0: # If there are less than zero shapes on
+    elif state[0][0] < 0 or state[0][1] < 0 or state[1][0] < 0 or state[1][1] < 0: # If there are less than zero shapes on
                                                                                  # either side, return False
         return False
     elif state[0][0] < state[0][1] and state[0][0] != 0:# If the left has less circles than polys and more than zero
@@ -126,25 +128,27 @@ def apply_action(node, action):
     A new node with the applied action
     '''
 
+    import copy
+
     current_state = node.get_state()
-    current_path = node.get_path()
+    new_path = copy.copy(node.get_path())
 
-    if node[2]:
-        num_circles_left = current_state[0][0] - action[0]
-        num_polys_left = current_state[0][1] - action[1]
-        num_circles_right = current_state[1][0] + action[0]
-        num_polys_right = current_state[1][1] + action[1]
-
-    else:
+    if node.get_state()[2]:
         num_circles_left = current_state[0][0] + action[0]
         num_polys_left = current_state[0][1] + action[1]
         num_circles_right = current_state[1][0] - action[0]
         num_polys_right = current_state[1][1] - action[1]
 
-    new_state = [[num_circles_left, num_polys_left], [num_circles_right, num_polys_right], not current_state[0][2]]
+    else:
+        num_circles_left = current_state[0][0] - action[0]
+        num_polys_left = current_state[0][1] - action[1]
+        num_circles_right = current_state[1][0] + action[0]
+        num_polys_right = current_state[1][1] + action[1]
+
+    new_state = [[num_circles_left, num_polys_left], [num_circles_right, num_polys_right], not current_state[2]]
 
     if check_state(new_state):
-        new_path = current_path.append(node)
+        new_path.append(node)
         new_node = Node(new_state, new_path)
         return new_node
 
@@ -171,11 +175,14 @@ def expand(problem, node):
     '''
     # apply all possible actions and get the new nodes
     # Return all of the new nodes.
+    import copy
+
     new_nodes = []
     actions = problem.possible_actions
+    original_node = copy.copy(node)
 
     for i in actions:
-        new_node = apply_action(node, i)
+        new_node = apply_action(original_node, i)
         if new_node != None:
             new_nodes.append(new_node)
 
@@ -198,12 +205,11 @@ def breadth_first_search(problem):
 
     from collections import deque
 
-    qeu
     node = Node(problem.initial)
     if problem.is_goal(node.state):
         return node
-    frontier = deque(node)
-    reached = problem.initial
+    frontier = [node]
+    reached = [problem.initial]
     while frontier: # If something is empty in python, it is False. If not, it is True.
         node = frontier.pop()
         for child in expand(problem, node):
@@ -212,7 +218,7 @@ def breadth_first_search(problem):
                 return child
             if s not in reached:
                 reached.append(s)
-                frontier.append(s)
+                frontier.append(child)
 
         # So you want to immediately discard it whenever the polys outnumber the circles.
 
@@ -221,8 +227,11 @@ if __name__ == "__main__":
     initial_state = [[3, 3], [0, 0], False]  # [[circles on left, polys on left],[circles on right, polys on right],
                                      # boolean basketSide]
     goal_state = [[0, 0], [3, 3], True]
-    possible_actions = [[0, 0], [1, 0], [2, 0], [0, 1], [0, 2], [1, 1], [1, 2], [2, 2]] # The possible actions from a
-                                                                                        # node
+    possible_actions = [[0, 0], [1, 0], [2, 0], [0, 1], [0, 2], [1, 1]] # The possible actions from a node
     problem = Problem(initial_state, goal_state, possible_actions)
 
     solution = breadth_first_search(problem)
+    print(solution.get_path())
+    for i in solution.get_path():
+        print(i.get_state())
+    print(solution.get_state())
