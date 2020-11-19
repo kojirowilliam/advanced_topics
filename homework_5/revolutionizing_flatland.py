@@ -1,23 +1,93 @@
-# [[# of circles on left, # of polys on left], [# of circles on right, # of polys on right], boolean basketSide]
-# Initial State: [[3,3], [0,0], False]
-# Goal Test: [[0,0], [3,3], True]
-# Actions: [#_of_circles_to_move,#_of_polygons_to_move] Each can only either be a 0,1, or 2. [0,0] means move the basket
-# Path Cost:
-
-# state = [[3,3], [0,0], False] # [[circles on left, polys on left],[circles on right, polys on right],boolean basketSide]
-# goal_state = [[0,0], [3,3], True]
-# action = [0,0, True] # [circles_to_transport, polys_to_transport, is_on_left]
-# possible_actions = [[0,0], [1,0], [2,0], [0,1], [0,2], [1,1], [1, 2], [2,2]]
-# solution = [] # Action History
+from search import *
 
 
-class Problem():
-    def __init__(self,initial, goal_state, possible_actions):
-        self.initial = initial
-        self.goal_state = goal_state
-        self.possible_actions = possible_actions
+class Flatland_Problem(Problem):
+    def actions(self, state):
+        '''
+        Return the actions that can be executed in the given state. The result would typically be a list, but if there
+        are many actions, consider yielding them one at a time in an iterator, rather than building them all at once.
 
-    def is_goal(self, state):
+        Parameters
+        ----------
+        state : list
+        The current state of Flatland.
+
+        Returns
+        -------
+        possible_actions : list
+        A list of all of the different ways the shapes can be moved in the specified state.
+        '''
+
+        all_possible_actions = [[0, 0], [1, 0], [2, 0], [0, 1], [0, 2], [1, 1]]
+        possible_actions = [[0,0]]
+
+        if state[2]: # If the basket is on the right, x = -1.
+            x = -1
+
+        else:
+            x = 1
+
+        for i in all_possible_actions:
+            circles_left = state[0][0] - i[0] * x # If the basket is on the right, add instead of subtract.
+            polys_left = state[0][1] - i[1] * x # If the basket is on the right, add instead of subtract.
+            circles_right = state[1][0] + i[0] * x # If the basket is on the right, subtract instead of add.
+            polys_right = state[1][1] + i[1] * x # If the basket is on the right, subtract instead of add.
+
+
+            if circles_left < 0 or polys_left < 0 or circles_right < 0 or polys_right < 0:  # If there are less than
+                                                                            # zero shapes on either side, return False
+                pass
+
+            elif circles_left < polys_left and circles_left != 0: # If the left has less circles than polys and more
+                                                                  # than zero circles, return False
+                pass
+
+            elif circles_right < polys_right and circles_right != 0: # If the right has less circles than polys and more
+                                                                     # than zero circles, return False
+                pass
+
+            else:
+                possible_actions.append(i)
+
+        return possible_actions
+
+
+    def result(self, state, action):
+        '''
+        Return the state that results from executing the given action in the given state. The action must be one of
+        self.actions(state).
+
+        Parameters
+        ----------
+        state : list
+        The current state of Flatland.
+
+        action : list
+
+        Returns
+        -------
+
+        '''
+
+        current_state = state
+
+        if state[2]:  # If the basket is on the right, x = -1.
+            x = -1
+
+        else:
+            x = 1
+
+        num_circles_left = current_state[0][0] - action[0] * x # If the basket is on the right, add instead of subtract.
+        num_polys_left = current_state[0][1] - action[1] * x # If the basket is on the right, add instead of subtract.
+        num_circles_right = current_state[1][0] + action[0] * x # If the basket is on the right, subtract instead of add.
+        num_polys_right = current_state[1][1] + action[1] * x # If the basket is on the right, subtract instead of add.
+
+        new_state = [[num_circles_left, num_polys_left], [num_circles_right, num_polys_right], not current_state[2]]
+
+        return new_state
+
+
+    def goal_test(self, state):
         '''
         Returns True if the goal isn't reached and False if it reached.
 
@@ -39,154 +109,29 @@ class Problem():
             return False
 
 
-class Node():
-    def __init__(self, state, path = []):
-        self.state = state
-        self.path = path
+    def path_cost(self, c, state1, action, state2):
+        '''
+        Return the cost of a solution path that arrives at state2 from state1 via action, assuming cost c to get up to
+        state1. If the problem is such that the path doesn't matter, this function will only look at state2. If the path
+        does matter, it will consider c and maybe state1 and action. The default method costs 1 for every step in the
+        path.
 
+        Parameters
+        ----------
+        c
+        state1
+        action
+        state2
 
-    def set_state(self, state):
-        self.state = state
+        Returns
+        -------
 
-    def set_path(self, path):
-        self.path = path
+        '''
 
-    def get_state(self):
-        return self.state
+        return c + 1
 
-    def get_path(self):
-        return self.path
-
-# def next_action(action):
-#     '''
-#
-#     Parameters
-#     ----------
-#     action : list
-#     [circles_to_transport, polys_to_transport, is_on_left]
-#     The action the environment just took make.
-#
-#     Returns
-#     -------
-#
-#     '''
-#
-#     if action == [2,2]:
-#         return None
-#     elif action[1] == 2:
-#
-#     elif action[0] == 2:
-#         action[0] = 0
-#
-#     action =
-
-
-def check_state(state):
-    '''
-
-    Parameters
-    ----------
-    state : list
-    The state to be determined whether it is a legal or an illegal move in the environment.
-
-    Returns
-    -------
-    bool
-    Returns True if the state is legal and False otherwise.
-    '''
-    if state == None:
-        return False
-
-    elif state[0][0] < 0 or state[0][1] < 0 or state[1][0] < 0 or state[1][1] < 0: # If there are less than zero shapes on
-                                                                                 # either side, return False
-        return False
-    elif state[0][0] < state[0][1] and state[0][0] != 0:# If the left has less circles than polys and more than zero
-                                                      # circles, return False
-        return False
-    elif state[1][0] < state[1][1] and state[1][0] != 0: # If the right has less circles than polys and more than
-                                                         # zero circles, return False
-        return False
-    else:
-        return True
-
-
-def apply_action(node, action):
-    '''
-    Applies an action to a given state.
-
-    Parameters
-    ----------
-    node : Node class
-    The node to have the action applied to.
-
-    action : list
-    The action to be applied.
-
-    Returns
-    -------
-    new_node : Node class
-    A new node with the applied action
-    '''
-
-    import copy
-
-    current_state = node.get_state()
-    new_path = copy.copy(node.get_path())
-
-    if node.get_state()[2]:
-        num_circles_left = current_state[0][0] + action[0]
-        num_polys_left = current_state[0][1] + action[1]
-        num_circles_right = current_state[1][0] - action[0]
-        num_polys_right = current_state[1][1] - action[1]
-
-    else:
-        num_circles_left = current_state[0][0] - action[0]
-        num_polys_left = current_state[0][1] - action[1]
-        num_circles_right = current_state[1][0] + action[0]
-        num_polys_right = current_state[1][1] + action[1]
-
-    new_state = [[num_circles_left, num_polys_left], [num_circles_right, num_polys_right], not current_state[2]]
-
-    if check_state(new_state):
-        new_path.append(node)
-        new_node = Node(new_state, new_path)
-        return new_node
-
-    else:
-        return None
-
-
-def expand(problem, node):
-    '''
-    Returns a list of nodes that the environment can take as a next step.
-
-    Parameters
-    ----------
-    problem : Problem class
-    A class that contains the current problem.
-
-    node : Node class
-    A class the contains the current node.
-
-    Returns
-    -------
-    new_nodes : list
-    A list of the next possible nodes.
-    '''
-    # apply all possible actions and get the new nodes
-    # Return all of the new nodes.
-    import copy
-
-    new_nodes = []
-    actions = problem.possible_actions
-    original_node = copy.copy(node)
-
-    for i in actions:
-        new_node = apply_action(original_node, i)
-        if new_node != None:
-            new_nodes.append(new_node)
-
-    return new_nodes
+class Flatland_Node(Node):
+    pass
 
 
 def breadth_first_search(problem):
@@ -205,16 +150,16 @@ def breadth_first_search(problem):
 
     from collections import deque
 
-    node = Node(problem.initial)
-    if problem.is_goal(node.state):
+    node = Flatland_Node(problem.initial)
+    if problem.goal_test(node.state):
         return node
     frontier = [node]
     reached = [problem.initial]
     while frontier: # If something is empty in python, it is False. If not, it is True.
         node = frontier.pop()
-        for child in expand(problem, node):
+        for child in Flatland_Node.expand(problem, node):
             s = child.state
-            if problem.is_goal(s):
+            if problem.goal_test(s):
                 return child
             if s not in reached:
                 reached.append(s)
@@ -228,7 +173,7 @@ if __name__ == "__main__":
                                      # boolean basketSide]
     goal_state = [[0, 0], [3, 3], True]
     possible_actions = [[0, 0], [1, 0], [2, 0], [0, 1], [0, 2], [1, 1]] # The possible actions from a node
-    problem = Problem(initial_state, goal_state, possible_actions)
+    problem = Flatland_Problem(initial_state, goal_state)
 
     solution = breadth_first_search(problem)
     print(solution.get_path())
