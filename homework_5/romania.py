@@ -67,6 +67,9 @@ class Problem:
     of your subclass and solve them with the various search functions."""
 
     def connections(self, state):
+        print("\tState")
+        print("\t\t" + state)
+        print("\t\t" + str(self.tree[state]))
         return self.tree[state]
 
     def actions(self, state):
@@ -75,10 +78,18 @@ class Problem:
         many actions, consider yielding them one at a time in an
         iterator, rather than building them all at once."""
 
-        for i in self.connections(state):
-            return i[0]
+        list = []
 
-        return NotImplementedError
+        for i in self.connections(state):
+            list.append(i[0])
+
+        print("\tActions")
+        print("\t\t" + str(list))
+
+        if list is None:
+            raise NotImplementedError
+
+        return list
 
     def result(self, state, action):
         """Return the state that results from executing the given
@@ -114,10 +125,13 @@ class BreadthRomania(Problem):
         state to self.goal or checks for state in self.goal if it is a
         list, as specified in the constructor. Override this method if
         checking against a single self.goal is not enough."""
-        if isinstance(self.goal, list):
-            return is_in(state, self.goal)
-        else:
-            return state == self.goal
+
+        return state == self.goal
+
+        # if isinstance(self.goal, list):
+        #     return is_in(state, self.goal)
+        # else:
+        #     return state == self.goal
 
 
 
@@ -150,8 +164,13 @@ class Node:
 
     def expand(self, problem):
         """List the nodes reachable in one step from this node."""
-        return [self.child_node(problem, action)
-                for action in problem.actions(self.state)]
+
+        list = []
+
+        for actions in problem.actions(self.state):
+            list.append(self.child_node(problem, actions))
+
+        return list
 
     def child_node(self, problem, action):
         """return the child node that results from applying action"""
@@ -196,19 +215,27 @@ def breadth_first_search(problem):
     frontier = [main_node]
     reached = [problem.initial]
     while frontier:
-        main_node = frontier.pop()
+        print("New Loop")
+        print(" " + str(frontier))
+        main_node = frontier.pop(0)
+        print(" " + str(main_node))
         for child in main_node.expand(problem):
+            print("\t\tChild")
+            print("\t\t\t" + str(child))
             s = child.state
             if problem.goal_test(s):
+                print("GOAL STATE")
                 return child
             if s not in reached:
+                print("Not reached, appending")
                 reached.append(s)
                 frontier.append(child)
+        print('. \n.')
 
 
 if __name__ == "__main__":
-    solution = breadth_first_search(BreadthRomania("Arad",  "Bucharest"))
-    print(solution.get_path())
-    for nodes in solution.get_path():
-        print(nodes.get_state())
-    print(solution.get_state())
+    solution = breadth_first_search(BreadthRomania("Arad", base_tree, "Bucharest"))
+    # print(solution.get_path())
+    # for nodes in solution.get_path():
+    #     print(nodes.get_state())
+    # print(solution.get_state())
