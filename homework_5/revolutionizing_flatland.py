@@ -1,7 +1,13 @@
+
+
+
 from search import *
 
 
 class Flatland_Problem(Problem):
+    '''
+    A class for the Flatland problem using the Problem class from search.py.
+    '''
     def actions(self, state):
         '''
         Return the actions that can be executed in the given state. The result would typically be a list, but if there
@@ -18,16 +24,17 @@ class Flatland_Problem(Problem):
         A list of all of the different ways the shapes can be moved in the specified state.
         '''
 
-        all_possible_actions = [[0, 0], [1, 0], [2, 0], [0, 1], [0, 2], [1, 1]]
+        # All of the actions that can occur inside of Flatland at a single step.
+        all_actions = [[0, 0], [1, 0], [2, 0], [0, 1], [0, 2], [1, 1]]
+        # All of the possible actions that can occur at the given step in Flatland
         possible_actions = [[0,0]]
 
         if state[2]: # If the basket is on the right, x = -1.
             x = -1
-
         else:
             x = 1
 
-        for i in all_possible_actions:
+        for i in all_actions:
             circles_left = state[0][0] - i[0] * x # If the basket is on the right, add instead of subtract.
             polys_left = state[0][1] - i[1] * x # If the basket is on the right, add instead of subtract.
             circles_right = state[1][0] + i[0] * x # If the basket is on the right, subtract instead of add.
@@ -37,15 +44,12 @@ class Flatland_Problem(Problem):
             if circles_left < 0 or polys_left < 0 or circles_right < 0 or polys_right < 0:  # If there are less than
                                                                             # zero shapes on either side, return False
                 pass
-
             elif circles_left < polys_left and circles_left != 0: # If the left has less circles than polys and more
                                                                   # than zero circles, return False
                 pass
-
             elif circles_right < polys_right and circles_right != 0: # If the right has less circles than polys and more
                                                                      # than zero circles, return False
                 pass
-
             else:
                 possible_actions.append(i)
 
@@ -63,17 +67,18 @@ class Flatland_Problem(Problem):
         The current state of Flatland.
 
         action : list
+        The action that has to be performed from the given state.
 
         Returns
         -------
-
+        new_state : list
+        The resultant state from the original state after performing the action.
         '''
 
         current_state = state
 
         if state[2]:  # If the basket is on the right, x = -1.
             x = -1
-
         else:
             x = 1
 
@@ -109,26 +114,9 @@ class Flatland_Problem(Problem):
             return False
 
 
-    def path_cost(self, c, state1, action, state2):
-        '''
-        Return the cost of a solution path that arrives at state2 from state1 via action, assuming cost c to get up to
-        state1. If the problem is such that the path doesn't matter, this function will only look at state2. If the path
-        does matter, it will consider c and maybe state1 and action. The default method costs 1 for every step in the
-        path.
+    # def path_cost(self, node):
+    #     return len(node.path) # Returns tha cost from getting from the initial state to 'node'.
 
-        Parameters
-        ----------
-        c
-        state1
-        action
-        state2
-
-        Returns
-        -------
-
-        '''
-
-        return c + 1
 
 class Flatland_Node(Node):
     pass
@@ -156,8 +144,8 @@ def breadth_first_search(problem):
     frontier = [node]
     reached = [problem.initial]
     while frontier: # If something is empty in python, it is False. If not, it is True.
-        node = frontier.pop()
-        for child in Flatland_Node.expand(problem, node):
+        node = frontier.pop(0)
+        for child in node.expand(problem):
             s = child.state
             if problem.goal_test(s):
                 return child
@@ -170,13 +158,12 @@ def breadth_first_search(problem):
 
 if __name__ == "__main__":
     initial_state = [[3, 3], [0, 0], False]  # [[circles on left, polys on left],[circles on right, polys on right],
-                                     # boolean basketSide]
+                                             # boolean basketSide]
     goal_state = [[0, 0], [3, 3], True]
-    possible_actions = [[0, 0], [1, 0], [2, 0], [0, 1], [0, 2], [1, 1]] # The possible actions from a node
     problem = Flatland_Problem(initial_state, goal_state)
 
-    solution = breadth_first_search(problem)
-    print(solution.get_path())
-    for i in solution.get_path():
-        print(i.get_state())
-    print(solution.get_state())
+    BFS_solution = breadth_first_search(problem)
+
+    print(BFS_solution.path())
+    print(BFS_solution.solution())
+    print(BFS_solution.path_cost)

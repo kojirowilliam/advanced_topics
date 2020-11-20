@@ -2,8 +2,11 @@
 ## Library adapted from Berkeley AIMA GSOC
 ##
 
+import heapq
+
+
 # ----------------------------------------------------------------------------
-# UTIL FUNCTIONS
+# UTIL FUNCTIONS & CLASSES
 
 def is_in(elt, seq):
     """ test if elt is in sequence, seq using is instead of =="""
@@ -12,6 +15,30 @@ def is_in(elt, seq):
     return any( x is elt for x in seq)
 
 
+
+# ----------------------------------------------------------------------------
+
+class NodePriorityQueue:
+    """Simple Proxy for a heapq with a feature for pushing Nodes onto the Queue"""
+    def __init__(self, values=[]):
+        self.values = values
+        heapq.heapify(self.values)
+
+    def push(self, x):
+        """if an instance of Node is pushed onto the queue the path_cost for the 
+        Node is used to prioritize the queue"""
+        if isinstance(x,Node):
+            heapq.heappush(self.values, (x.path_cost, x))
+        else:
+            heapq.heappush(self.values, x)
+        
+    def pop(self):
+        """Proxy for heapq pop"""
+        return heapq.heappop(self.values)
+
+    def __repr__(self) :
+        """proxy to the representation for heapq"""
+        return self.values.__repr__()
 # ----------------------------------------------------------------------------
 
 class Problem:
@@ -86,10 +113,6 @@ class Node:
 
     def expand(self, problem):
         """List the nodes reachable in one step from this node."""
-        # lis = []
-        # for action in problem.actions(self.state):
-        #     list.append(self.child_node(problem, action))
-        # return lis
         return [self.child_node(problem, action)
                 for action in problem.actions(self.state)]
 
@@ -115,3 +138,11 @@ class Node:
         """Node are equal if they have the same class and their states are equal. This may have to be 
         overridden if the state equality can not be determined from =="""
         return isinstance(other, Node) and self.state == other.state
+
+
+from collections import deque
+
+def breadth_first_search(problem):
+    current_node = Node(problem.initial)
+    frontier = deque([current_node])
+    pass
