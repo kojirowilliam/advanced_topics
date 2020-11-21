@@ -1,7 +1,13 @@
-***Note to Dr. Spell***    
-*We submitted a completely finished version to you. Still, we're going to continue to work on the project and make it better on the after_turn_in branch. We'd like for you to check that out because it will have better code, but the master branch will remain unchanged.*
+# Homework 5
+
+**Romania Problem Notes**    
+I implemented this problem with a list function rather than your heapq usage. Because of that, I'm not sure how I should implement the extracredit.
+Also my logging functions prob double the operations needed here but I don't think it matters yet and makes code uglier and harder to read.
 
 # Homework 4
+
+***Note to Dr. Spell***    
+*We submitted a completely finished version to you. Still, we're going to continue to work on the project and make it better on the after_turn_in branch. We'd like for you to check that out because it will have better code, but the master branch will remain unchanged.*
 
 The basic idea behind our agents is that they face a certain direction and will only go forward and right (relative to the direction they face). This means that the agents stick to walls and spiral inward to explore a world.
 
