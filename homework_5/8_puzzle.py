@@ -5,6 +5,7 @@
 import heapq
 
 
+
 # ----------------------------------------------------------------------------
 # UTIL FUNCTIONS & CLASSES
 # ----------------------------------------------------------------------------
@@ -23,10 +24,11 @@ class Problem:
         self.goal = goal
 
     def actions(self, state):
-        """Return the actions that can be executed in the given
-        state. The result would typically be a list, but if there are
-        many actions, consider yielding them one at a time in an
-        iterator, rather than building them all at once."""
+        """For this moveset, r means moving the piece left of the empty space to the right,
+        u means moving the piece bellow the empty space up, l means moving the piece left of the space to the right,
+        d means moving the piece above the empty space down
+        the empty space is represented by a 0
+        the entire board is represented by a 9 digit number"""
         pos = state.index(0)
         moves = {
             0: ['u', 'l'],
@@ -42,9 +44,7 @@ class Problem:
         return moves[pos]
 
     def result(self, state, action):
-        """Return the state that results from executing the given
-        action in the given state. The action must be one of
-        self.actions(state)."""
+        """This modifies the 9 digit number representing the board based on the action"""
         x=state.index(0)
         newpos = state[:]
         if action == 'r':
