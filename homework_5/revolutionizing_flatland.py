@@ -8,6 +8,7 @@ class Flatland_Problem(Problem):
     '''
     A class for the Flatland problem using the Problem class from search.py.
     '''
+
     def actions(self, state):
         '''
         Return the actions that can be executed in the given state. The result would typically be a list, but if there
@@ -114,11 +115,11 @@ class Flatland_Problem(Problem):
             return False
 
 
-    # def path_cost(self, node):
-    #     return len(node.path) # Returns tha cost from getting from the initial state to 'node'.
-
-
 class Flatland_Node(Node):
+    '''
+    A class that represents a node (instance of the Flatland Environment) using the Node class from search.py.
+    '''
+
     pass
 
 
@@ -133,10 +134,8 @@ def breadth_first_search(problem):
     Returns
     -------
     node : Node class
-    A node with state 'goal_state' and the 'path' from the 'problem.initial' to the 'goal_state'.
+    A node with state 'goal_state' and the 'path' containing both the 'problem.initial' and the 'goal_state'.
     '''
-
-    from collections import deque
 
     node = Flatland_Node(problem.initial)
     if problem.goal_test(node.state):
@@ -153,17 +152,37 @@ def breadth_first_search(problem):
                 reached.append(s)
                 frontier.append(child)
 
-        # So you want to immediately discard it whenever the polys outnumber the circles.
+
+def tests():
+    '''
+    Tests the functions inside of revolutionizing_flatland.py.
+    '''
+
+    # Testing Flatland_Problem().actions
+    actions = Flatland_Problem([[3, 3], [0, 0], False]).actions([[3, 3], [0, 0], False])
+    assert(actions[0] == [0, 0])
+    assert(actions[1] == [0, 0])
+    assert(actions[2] == [0, 1])
+    assert(actions[3] == [0, 2])
+    assert(actions[4] == [1, 1])
+    actions = Flatland_Problem([[3, 3], [0, 0], False]).actions([[0, 2], [3, 1], False])
+    assert(actions[0] == [0, 0])
+    assert(actions[0] == [0, 0])
+    assert(actions[0] == [0, 0])
+    assert(actions[0] == [0, 0])
+    print("All tests passed. Everything's working properly!")
 
 
 if __name__ == "__main__":
-    initial_state = [[3, 3], [0, 0], False]  # [[circles on left, polys on left],[circles on right, polys on right],
-                                             # boolean basketSide]
+
+    # States are represented as [[circles on left, polys on left],[circles on right, polys on right],boolean basketSide]
+    tests()
+    initial_state = [[3, 3], [0, 0], False]
     goal_state = [[0, 0], [3, 3], True]
     problem = Flatland_Problem(initial_state, goal_state)
 
     BFS_solution = breadth_first_search(problem)
-
+    print(Flatland_Problem([[3, 3], [0, 0], False]).actions([[0, 2], [3, 1], False]))
     print(BFS_solution.path())
     print(BFS_solution.solution())
     print(BFS_solution.path_cost)
