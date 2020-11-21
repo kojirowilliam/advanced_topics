@@ -1,22 +1,5 @@
-from search import *
+from homework_5.search import *
 
-
-class Queue:
-    def __init__(self, values=[]):
-        self.values = values
-
-    def push(self, addition):
-        # self.values = self.values.append(addition)
-        self.values = self.values.extend(addition)
-
-    def pop(self):
-        self.values = self.values.pop()
-
-    def __repr__(self):
-        """proxy to the representation for heapq"""
-        return self.values.__repr__()
-
-# ----------------------------------------------------------------------------
 class RomaniaProblem(Problem):
     '''
     An abstract class for all of the search methods in the Romania problem.
@@ -28,7 +11,6 @@ class RomaniaProblem(Problem):
         other arguments."""
         super().__init__(initial, goal)
         self.search_space = search_space
-
 
     def actions(self, state, log=True):
         """Return the actions that can be executed in the given
@@ -56,7 +38,6 @@ class RomaniaProblem(Problem):
 
         return NotImplementedError
 
-
     def goal_test(self, state):
         """Return True if the state is a goal. The default method compares the
         state to self.goal or checks for state in self.goal if it is a
@@ -67,6 +48,10 @@ class RomaniaProblem(Problem):
 
 
 class BreadthRomania(RomaniaProblem):
+    '''
+      Romania problem which implements breadth-first search in terms of path cost
+    '''
+
     def path_cost(self, c, state1, action, state2):
         """Return the cost of a solution path that arrives at state2 from
         state1 via action, assuming cost c to get up to state1. If the problem
@@ -75,16 +60,11 @@ class BreadthRomania(RomaniaProblem):
         and action. The default method costs 1 for every step in the path."""
         return c + 1
 
-    def result(self, state, action):
-        """Return the state that results from executing the given
-        action in the given state. The action must be one of
-        self.actions(state)."""
-
-        if action in self.actions(state, False):
-            return action
-
 
 class UniformCostRomania(RomaniaProblem):
+    '''
+    Romania problem which implements uniform-cost search in terms of path cost
+    '''
 
     def path_cost(self, c, state1, action, state2):
         """Return the cost of a solution path that arrives at state2 from
@@ -102,10 +82,7 @@ class UniformCostRomania(RomaniaProblem):
 def breadth_first_search(problem):
     '''
     Returns a solution to the problem or returns failure.
-    Parameters
-    ----------
-    state : list
-    The initial state of the environment.
+
     Returns
     -------
     node : Node class
@@ -138,13 +115,11 @@ def breadth_first_search(problem):
                 frontier.append(child)
         print('. \n.')
 
+
 def uniform_cost_search(problem):
     '''
     Returns a solution to the problem or returns failure.
-    Parameters
-    ----------
-    state : list
-    The initial state of the environment.
+
     Returns
     -------
     node : Node class
