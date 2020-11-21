@@ -89,7 +89,7 @@ class Problem:
         list, as specified in the constructor. Override this method if
         checking against a single self.goal is not enough."""
         if isinstance(self.goal, list):
-            return is_in(state, self.goal)
+            return state.state == self.goal
         else:
             return state == self.goal
 
@@ -177,7 +177,7 @@ def breadth_first_search(problem):
             break
         node = frontier.popleft()
         if Problem.goal_test(problem,node):
-            print(Node.solution(node.state))
+            print(Node.solution(node))
             notsolved = False
             break
         explored.add(list_to_int(node.state))
