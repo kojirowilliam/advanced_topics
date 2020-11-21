@@ -28,7 +28,7 @@ class Flatland_Problem(Problem):
         # All of the actions that can occur inside of Flatland at a single step.
         all_actions = [[0, 0], [1, 0], [2, 0], [0, 1], [0, 2], [1, 1]]
         # All of the possible actions that can occur at the given step in Flatland
-        possible_actions = [[0,0]]
+        possible_actions = []
 
         if state[2]: # If the basket is on the right, x = -1.
             x = -1
@@ -109,7 +109,7 @@ class Flatland_Problem(Problem):
         True if the goal isn't reached and False if the goal is reached.
         '''
 
-        if state == goal_state:
+        if state == self.goal:
             return True
         else:
             return False
@@ -158,14 +158,64 @@ def tests():
     Tests the functions inside of revolutionizing_flatland.py.
     '''
 
-    # Testing Flatland_Problem().actions
-    actions = Flatland_Problem([[3, 3], [0, 0], False]).actions([[3, 3], [0, 0], False])
-    assert(actions[0] == [0, 0])
-    assert(actions[1] == [0, 0])
-    assert(actions[2] == [0, 1])
-    assert(actions[3] == [0, 2])
-    assert(actions[4] == [1, 1])
-    print("All tests passed. Everything's working properly!")
+    test_problem = Flatland_Problem([[3, 3], [0, 0], False], [[0, 0], [3, 3], True])
+
+    # Testing Flatland_Problem().actions()
+    actions = test_problem.actions([[3, 3], [0, 0], False])
+    correct_actions = [[0,0], [0, 1], [0, 2], [1, 1]]
+    assert(actions == correct_actions), "Failed initial test for Flatland_Problem.actions(state). Predicting " \
+                                        "incorrect actions."
+    actions = test_problem.actions([[2, 2], [1, 1], False])
+    correct_actions = [[0, 0], [2, 0], [1, 1]]
+    assert (actions == correct_actions), "Failed practical test for Flatland_Problem.actions(state). Inaccurate " \
+                                         "prediction of possible actions."
+    actions = test_problem.actions([[3, 0], [0, 3], False])
+    correct_actions = [[0,0]]
+    assert (actions == correct_actions), "Failed impossible test for Flatland_Problem.actions(state). Predicted an " \
+                                         "impossible action."
+
+    # Testing Flatland_Problem().result()
+    all_actions = [[0, 0], [1, 0], [2, 0], [0, 1], [0, 2], [1, 1]]
+    # correct_results = []
+    # for i in all_actions:
+    #     correct_results.append(test_problem.result([[0, 0], [3, 3], True], i))
+    # print(correct_results)
+
+    correct_results = [[[3, 3], [0, 0], True], [[2, 3], [1, 0], True], [[1, 3], [2, 0], True],
+                       [[3, 2], [0, 1], True], [[3, 1], [0, 2], True], [[2, 2], [1, 1], True]]
+    actions = [[0, 0], [1, 0], [2, 0], [0, 1], [0, 2], [1, 1]]
+    results = []
+    for i in actions:
+        results.append(test_problem.result([[3, 3], [0, 0], False], i))
+    assert(results == correct_results), "Failed initial state test for Flatland_Problem.results(state). Incorrect " \
+                                        "calculations of the resulting actions."
+
+    correct_results = [[[0, 0], [3, 3], False], [[1, 0], [2, 3], False], [[2, 0], [1, 3], False],
+                       [[0, 1], [3, 2], False], [[0, 2], [3, 1], False], [[1, 1], [2, 2], False]]
+    actions = [[0, 0], [1, 0], [2, 0], [0, 1], [0, 2], [1, 1]]
+    results = []
+    for i in actions:
+        results.append(test_problem.result([[0, 0], [3, 3], True], i))
+    assert(results == correct_results), "Failed other side initial state test for Flatland_Problem.results(state). " \
+                                        "Incorrect calculations of the resulting actions."
+
+    # Testing Flatland_Problem().goal_test()
+    assert(not test_problem.goal_test([[0, 2], [3, 1], False])), "A non-goal_state state returned True from goal_test"
+    assert(not test_problem.goal_test([[0, 0], [3, 3], False])), "Basket is on the wrong side, yet goal_test returned" \
+                                                                  "True"
+    assert(test_problem.goal_test([[0, 0], [3, 3], True])), "goal_test returned False when it should have returned True"
+
+    # Testing Node().expand() and Node.child_node()
+    test_node = Node([[3, 3], [0, 0], False])
+    expanded_test_node = test_node.expand(test_problem)
+    correct_expanded_test_node_states = [[[3, 3], [0, 0], True], [[3, 2], [0, 1], True], [[3, 1], [0, 2], True],
+                                         [[2, 2], [1, 1], True]]
+
+    for i,v in enumerate(expanded_test_node):
+        assert(v.state == correct_expanded_test_node_states[i])
+
+    print("All tests passed. Everything's working properly!\n")
+
 
 
 if __name__ == "__main__":
@@ -178,7 +228,6 @@ if __name__ == "__main__":
 
     BFS_solution = breadth_first_search(problem)
 
-    print(Flatland_Problem([[3, 3], [0, 0], False]).actions([[3, 3], [0, 0], False]))
-    print(BFS_solution.path())
-    print(BFS_solution.solution())
-    print(BFS_solution.path_cost)
+    print("The solution path with BFS:\n", BFS_solution.path())
+    print("The solution actions with BFS:\n", BFS_solution.solution())
+    print("The total path cost with BFS:\n", BFS_solution.path_cost)
