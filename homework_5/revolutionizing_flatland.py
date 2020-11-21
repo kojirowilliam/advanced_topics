@@ -165,6 +165,11 @@ def tests():
     assert(actions[2] == [0, 1])
     assert(actions[3] == [0, 2])
     assert(actions[4] == [1, 1])
+    actions = Flatland_Problem([[3, 3], [0, 0], False]).actions([[0, 2], [3, 1], False])
+    assert(actions[0] == [0, 0])
+    assert(actions[0] == [0, 0])
+    assert(actions[0] == [0, 0])
+    assert(actions[0] == [0, 0])
     print("All tests passed. Everything's working properly!")
 
 
@@ -177,8 +182,7 @@ if __name__ == "__main__":
     problem = Flatland_Problem(initial_state, goal_state)
 
     BFS_solution = breadth_first_search(problem)
-
-    print(Flatland_Problem([[3, 3], [0, 0], False]).actions([[3, 3], [0, 0], False]))
+    print(Flatland_Problem([[3, 3], [0, 0], False]).actions([[0, 2], [3, 1], False]))
     print(BFS_solution.path())
     print(BFS_solution.solution())
     print(BFS_solution.path_cost)
