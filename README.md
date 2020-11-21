@@ -2,7 +2,7 @@
 
 **Romania Problem Notes**    
 I implemented this problem with a list function rather than your heapq usage. Because of that, I'm not sure how I should implement the extracredit.
-Also my logging functions prob double the operations needed here but I didn't really care to fix it.
+Also my logging functions prob double the operations needed here but I don't think it matters yet and makes code uglier and harder to read.
 
 # Homework 4
 
