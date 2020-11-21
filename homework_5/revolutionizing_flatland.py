@@ -119,7 +119,6 @@ class Flatland_Node(Node):
     '''
     A class that represents a node (instance of the Flatland Environment) using the Node class from search.py.
     '''
-
     pass
 
 
@@ -220,10 +219,11 @@ def tests():
 
 if __name__ == "__main__":
 
-    # States are represented as [[circles on left, polys on left],[circles on right, polys on right],boolean basketSide]
     tests()
-    initial_state = [[3, 3], [0, 0], False]
-    goal_state = [[0, 0], [3, 3], True]
+
+    # States are represented as [[circles on left, polys on left],[circles on right, polys on right],boolean basketSide]
+    initial_state = [[3, 3], [0, 0], False] # Initial state of Flatland
+    goal_state = [[0, 0], [3, 3], True] # The goal state of Flatland
     problem = Flatland_Problem(initial_state, goal_state)
 
     BFS_solution = breadth_first_search(problem)
