@@ -1,4 +1,4 @@
-from homework_5.search import *
+from search import *
 
 class RomaniaProblem(Problem):
     '''

@@ -2,7 +2,6 @@
 ## Library adapted from Berkeley AIMA GSOC
 ##
 
-import heapq
 from search import *
 # ----------------------------------------------------------------------------
 # UTIL FUNCTIONS & CLASSES
