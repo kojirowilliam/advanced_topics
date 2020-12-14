@@ -132,6 +132,29 @@ base_tree = {
     "Neamt": [["Iasi", 87]]
 }
 
+romania_map = {
+    "Arad" : {"Zerind" : 75, "Sibiu" : 140, "Timisoara" : 118},
+    "Bucharest" : {"Urziceni" : 85, "Pitesti" : 101, "Giurgiu" : 90, "Fagaras" : 211},
+    "Craiova" : {"Drobeta" : 120, "Rimnicu" : 146, "Pitesti" : 138},
+    "Drobeta" : {"Mehadia" : 75, "Craiova": 120},
+    "Eforie" : {"Hirsova" : 86},
+    "Fagaras" : {"Sibiu" : 99, "Bucharest": 211},
+    "Giurgiu" : {"Buchareset": 90},
+    "Hirsova" : {"Urziceni" : 98, "Eforie" : 86},
+    "Iasi" : {"Vaslui" : 92, "Neamt" : 87},
+    "Lugoj" : {"Timisoara" : 111, "Mehadia" : 70},
+    "Mehadia" : {"Lugoj" : 70, "Drobeta" : 75},
+    "Neamt" : {"Iasi" : 87},
+    "Oradea" : {"Zerind" : 71, "Sibiu" : 151},
+    "Pitesti" : {"Rimnicu" : 97, "Bucharest" : 101},
+    "Rimnicu" : {"Sibiu" : 80, "Pitesti" : 97, "Craiova" : 146},
+    "Sibiu" : {"Rimnicu" : 80, "Fagaras" : 99, "Oradea" : 151, "Arad" : 140 },
+    "Timisoara" : {"Arad" : 118, "Lugoj" : 111},
+    "Urziceni" : {"Vaslui" : 142, "Bucharest" : 85, "Hirsova" : 98},
+    "Vaslui" : {"Iasi" : 92, "Urziceni" : 142},
+    "Zerind" : {"Oradea" : 71, "Arad" : 75}
+}
+
 
 hueristic = {
     "Oradea": 380,
@@ -294,29 +317,39 @@ def search(problem):
 def key_path(child_node):
     return child_node.path_cost + hueristic[str(child_node.state)]
 
-
-if __name__ == "__main__":
-    solution_greedy = search(GreedyBestRomania("Arad", base_tree, "Bucharest", hueristic))
-    solution_astar = search(AStarRomania("Arad", base_tree, "Bucharest", hueristic))
-
 def will_hw6_1():
+    solution_greedy = search(GreedyBestRomania("Arad", base_tree, "Bucharest", hueristic))
     print("\nTHE UNVERIFIED CORRECT SOLUTION:")
-    solution = [(i.state, hueristic[i.state]) for i in solution_greedy.path()]
+    path = solution_greedy.path()
+    solution = [(i.state, hueristic[i.state]) for i in path]
     print(solution)
     print("\nDISTANCE TRAVELED:")
-    for i in solution_greedy.path():
-        distance += base_tree[parent_node][]
-    print(f"From Arad to Bucharest is {for i in solution_greedy.path(): return )
-    print([solution_greedy.solution()])
+    distance = 0
+    if len(path) > 0:
+        for i in range(len(path) - 1):
+            distance += romania_map[path[i].state][path[i+1].state]
+    print(f"From Arad to Bucharest is {distance}")
     return solution
 
 
 def will_hw6_2():
+    solution_astar = search(AStarRomania("Arad", base_tree, "Bucharest", hueristic))
     print("\nTHE UNVERIFIED CORRECT SOLUTION:")
-    solution = [(i.state, i.path_cost + hueristic[str(i.state)]) for i in solution_astar.path()]
+    path = solution_astar.path()
+    solution = [(i.state, i.path_cost + hueristic[str(i.state)]) for i in path]
     print(solution)
+    print("\nDISTANCE TRAVELED:")
+    distance = 0
+    if len(path) > 0:
+        for i in range(len(path) - 1):
+            distance += romania_map[path[i].state][path[i + 1].state]
+    print(f"From Arad to Bucharest is {distance}")
     return solution
 
 
-assert will_hw6_1() == [('Arad', 366), ('Sibiu', 253), ('Fagaras', 176), ('Bucharest', 0)]
-assert will_hw6_2() == [("Arad", 366), ("Sibiu", 393), ("Rimnicu", 413), ("Pitesti", 417), ("Bucharest", 418)]
+if __name__ == "__main__":
+    assert will_hw6_1() == [('Arad', 366), ('Sibiu', 253), ('Fagaras', 176), ('Bucharest', 0)]
+    assert will_hw6_2() == [("Arad", 366), ("Sibiu", 393), ("Rimnicu", 413), ("Pitesti", 417), ("Bucharest", 418)]
+
+
+
